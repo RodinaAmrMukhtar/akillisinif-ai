@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { IconType } from "react-icons";
+import type { ReactNode } from "react";
+import type { User } from "@supabase/supabase-js";
+import type { IconType } from "react-icons";
 import {
   BsActivity,
   BsBell,
@@ -25,7 +26,7 @@ import {
 import { supabase } from "@/lib/supabaseClient";
 
 type DashboardShellProps = {
-  children: React.ReactNode;
+  children: ReactNode;
   title: string;
   description: string;
   activePage?: string;
@@ -38,28 +39,105 @@ type MenuItem = {
   icon: IconType;
 };
 
+type UserRole = "Ogretmen" | "Ogrenci" | "Unknown";
+
 const teacherMenuItems: MenuItem[] = [
-  { label: "Genel Bakış", href: "/dashboard", key: "dashboard", icon: BsGrid1X2 },
-  { label: "Sınıflar", href: "/teacher/classes", key: "classes", icon: BsCollection },
-  { label: "Yeni Sınıf", href: "/teacher/classes/new", key: "new-class", icon: BsPlusSquare },
-  { label: "Katılım İstekleri", href: "/teacher/join-requests", key: "requests", icon: BsPersonCheck },
-  { label: "Ödevler", href: "/teacher/assignments", key: "assignments", icon: BsCardChecklist },
-  { label: "Notlar", href: "/teacher/grades", key: "grades", icon: BsJournalText },
-  { label: "Yoklama", href: "/teacher/attendance", key: "attendance", icon: BsCalendarCheck },
-  { label: "AI Risk Analizi", href: "/teacher/risk-analysis", key: "risk", icon: BsActivity },
-  { label: "Mesajlar", href: "/teacher/chat", key: "teacher-chat", icon: BsChatDots },
-  { label: "AI Asistan", href: "/teacher/ai-assistant", key: "teacher-ai", icon: BsCpu },
+  {
+    label: "Genel Bakış",
+    href: "/dashboard",
+    key: "dashboard",
+    icon: BsGrid1X2,
+  },
+  {
+    label: "Sınıflar",
+    href: "/teacher/classes",
+    key: "classes",
+    icon: BsCollection,
+  },
+  {
+    label: "Yeni Sınıf",
+    href: "/teacher/classes/new",
+    key: "new-class",
+    icon: BsPlusSquare,
+  },
+  {
+    label: "Katılım İstekleri",
+    href: "/teacher/join-requests",
+    key: "requests",
+    icon: BsPersonCheck,
+  },
+  {
+    label: "Ödevler",
+    href: "/teacher/assignments",
+    key: "assignments",
+    icon: BsCardChecklist,
+  },
+  {
+    label: "Notlar",
+    href: "/teacher/grades",
+    key: "grades",
+    icon: BsJournalText,
+  },
+  {
+    label: "Yoklama",
+    href: "/teacher/attendance",
+    key: "attendance",
+    icon: BsCalendarCheck,
+  },
+  {
+    label: "AI Risk Analizi",
+    href: "/teacher/risk-analysis",
+    key: "risk",
+    icon: BsActivity,
+  },
+  {
+    label: "Mesajlar",
+    href: "/teacher/chat",
+    key: "teacher-chat",
+    icon: BsChatDots,
+  },
+  {
+    label: "AI Asistan",
+    href: "/teacher/ai-assistant",
+    key: "teacher-ai",
+    icon: BsCpu,
+  },
 ];
 
 const studentMenuItems: MenuItem[] = [
-  { label: "Sınıflarım", href: "/student/classes", key: "student-classes", icon: BsBook },
-  { label: "Sınıfa Katıl", href: "/student/join-class", key: "join", icon: BsClipboardData },
-  { label: "Mesajlar", href: "/student/chat", key: "student-chat", icon: BsChatDots },
-  { label: "AI Asistan", href: "/student/ai-assistant", key: "student-ai", icon: BsCpu },
+  {
+    label: "Sınıflarım",
+    href: "/student/classes",
+    key: "student-classes",
+    icon: BsBook,
+  },
+  {
+    label: "Sınıfa Katıl",
+    href: "/student/join-class",
+    key: "join",
+    icon: BsClipboardData,
+  },
+  {
+    label: "Mesajlar",
+    href: "/student/chat",
+    key: "student-chat",
+    icon: BsChatDots,
+  },
+  {
+    label: "AI Asistan",
+    href: "/student/ai-assistant",
+    key: "student-ai",
+    icon: BsCpu,
+  },
 ];
 
 const systemMenuItems: MenuItem[] = [
-  { label: "Bildirimler", href: "/notifications", key: "notifications", icon: BsBell },
+  {
+    label: "Bildirimler",
+    href: "/notifications",
+    key: "notifications",
+    icon: BsBell,
+  },
 ];
 
 function getDisplayName(user: User | null) {
@@ -73,13 +151,32 @@ function getDisplayName(user: User | null) {
   );
 }
 
-function getRole(user: User | null) {
+function getUserRole(user: User | null): UserRole {
   const role = user?.user_metadata?.rol;
 
+  if (role === "Ogretmen") return "Ogretmen";
+  if (role === "Ogrenci") return "Ogrenci";
+
+  return "Unknown";
+}
+
+function getRoleLabel(role: UserRole) {
   if (role === "Ogretmen") return "Öğretmen";
   if (role === "Ogrenci") return "Öğrenci";
 
   return "Ön izleme modu";
+}
+
+function getRoleDescription(role: UserRole) {
+  if (role === "Ogretmen") {
+    return "Sınıf yönetimi ve erken uyarı paneli";
+  }
+
+  if (role === "Ogrenci") {
+    return "Öğrenci öğrenme ve takip paneli";
+  }
+
+  return "Rol bilgisi bekleniyor";
 }
 
 function getInitials(name: string) {
@@ -92,6 +189,34 @@ function getInitials(name: string) {
     parts.length > 1 ? parts[parts.length - 1]?.charAt(0) || "" : "";
 
   return `${first}${second}`.toLocaleUpperCase("tr-TR");
+}
+
+function getMainMenu(role: UserRole) {
+  if (role === "Ogrenci") {
+    return {
+      title: "Öğrenci Menüsü",
+      items: studentMenuItems,
+    };
+  }
+
+  if (role === "Ogretmen") {
+    return {
+      title: "Öğretmen Menüsü",
+      items: teacherMenuItems,
+    };
+  }
+
+  return {
+    title: "Panel Menüsü",
+    items: [
+      {
+        label: "Genel Bakış",
+        href: "/dashboard",
+        key: "dashboard",
+        icon: BsGrid1X2,
+      },
+    ],
+  };
 }
 
 function MenuSection({
@@ -141,17 +266,22 @@ export default function DashboardShell({
   activePage = "dashboard",
 }: DashboardShellProps) {
   const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
+  const role = getUserRole(user);
+  const roleLabel = getRoleLabel(role);
+  const roleDescription = getRoleDescription(role);
   const displayName = getDisplayName(user);
-  const roleLabel = getRole(user);
   const initials = getInitials(displayName);
   const email = user?.email || "demo@akillisinif.ai";
+  const mainMenu = getMainMenu(role);
 
   useEffect(() => {
     async function loadUser() {
       const { data } = await supabase.auth.getUser();
+
       setUser(data.user);
       setLoadingUser(false);
     }
@@ -201,7 +331,7 @@ export default function DashboardShell({
           <div className="mb-6 rounded-2xl border border-blue-100 bg-blue-50 p-4">
             {loadingUser ? (
               <div className="space-y-3">
-                <div className="h-10 w-10 animate-pulse rounded-xl bg-blue-100" />
+                <div className="h-11 w-11 animate-pulse rounded-xl bg-blue-100" />
                 <div className="h-4 w-36 animate-pulse rounded bg-blue-100" />
                 <div className="h-3 w-28 animate-pulse rounded bg-blue-100" />
               </div>
@@ -225,7 +355,7 @@ export default function DashboardShell({
                 <div className="mt-4 rounded-xl bg-white/70 p-3">
                   <p className="truncate text-xs text-blue-900">{email}</p>
                   <p className="mt-1 text-xs leading-5 text-blue-800">
-                    Aktif Supabase oturumu
+                    {roleDescription}
                   </p>
                 </div>
               </>
@@ -234,14 +364,8 @@ export default function DashboardShell({
 
           <div className="space-y-7">
             <MenuSection
-              title="Öğretmen Menüsü"
-              items={teacherMenuItems}
-              activePage={activePage}
-            />
-
-            <MenuSection
-              title="Öğrenci Menüsü"
-              items={studentMenuItems}
+              title={mainMenu.title}
+              items={mainMenu.items}
               activePage={activePage}
             />
 
