@@ -1,7 +1,60 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useState } from "react";
 import Navbar from "@/components/Navbar";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setLoading(true);
+    setErrorMessage("");
+
+    if (!email.trim()) {
+      setErrorMessage("Lütfen e-posta alanını doldurun.");
+      setLoading(false);
+      return;
+    }
+
+    if (!password.trim()) {
+      setErrorMessage("Lütfen şifre alanını doldurun.");
+      setLoading(false);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      setErrorMessage(error.message);
+      setLoading(false);
+      return;
+    }
+
+    const role = data.user?.user_metadata?.rol;
+
+    if (role === "Ogrenci") {
+      router.push("/student/classes");
+    } else {
+      router.push("/dashboard");
+    }
+
+    setLoading(false);
+  }
+
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950">
       <Navbar />
@@ -52,7 +105,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form className="mt-8 space-y-5">
+            <form onSubmit={handleLogin} className="mt-8 space-y-5">
               <div>
                 <label
                   htmlFor="email"
@@ -63,6 +116,8 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   placeholder="ornek@eposta.com"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
                 />
@@ -78,23 +133,27 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="En az 6 karakter"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
                 />
               </div>
 
+              {errorMessage && (
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-6 text-red-700">
+                  {errorMessage}
+                </div>
+              )}
+
               <button
-                type="button"
-                className="w-full rounded-2xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-2xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Giriş Yap
+                {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
               </button>
             </form>
-
-            <div className="mt-6 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-6 text-blue-900">
-              Bu ekran şu anda arayüz aşamasındadır. Sonraki aşamada Supabase
-              giriş sistemi bağlanacaktır.
-            </div>
 
             <p className="mt-6 text-center text-sm text-slate-500">
               Hesabınız yok mu?{" "}
