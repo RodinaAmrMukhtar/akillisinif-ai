@@ -1,5 +1,5 @@
 "use client";
-
+import { syncAirtableUser } from "@/lib/syncAirtableUser";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -65,12 +65,30 @@ export default function RegisterPage() {
     }
 
     if (!data.user) {
-      setErrorMessage("Kayıt oluşturulamadı. Lütfen tekrar deneyin.");
-      setLoading(false);
-      return;
-    }
+  setErrorMessage("Kayıt oluşturulamadı. Lütfen tekrar deneyin.");
+  setLoading(false);
+  return;
+}
 
-    setSuccessMessage("Hesap başarıyla oluşturuldu. Yönlendiriliyorsunuz...");
+try {
+  await syncAirtableUser({
+    authId: data.user.id,
+    email: data.user.email || email,
+    fullName,
+    role,
+    schoolNumber,
+  });
+} catch (syncError) {
+  setErrorMessage(
+    syncError instanceof Error
+      ? `Supabase hesabı oluşturuldu ancak Airtable eşitlemesi başarısız: ${syncError.message}`
+      : "Supabase hesabı oluşturuldu ancak Airtable eşitlemesi başarısız.",
+  );
+  setLoading(false);
+  return;
+}
+
+setSuccessMessage("Hesap başarıyla oluşturuldu ve Airtable'a kaydedildi. Yönlendiriliyorsunuz...");
 
     setTimeout(() => {
       if (role === "Ogrenci") {

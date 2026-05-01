@@ -1,4 +1,5 @@
 "use client";
+import { syncAirtableUser } from "@/lib/syncAirtableUser";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,13 +45,31 @@ export default function LoginPage() {
       return;
     }
 
-    const role = data.user?.user_metadata?.rol;
+    const role = data.user?.user_metadata?.rol || "Ogrenci";
+const fullName =
+  data.user?.user_metadata?.ad_soyad ||
+  data.user?.user_metadata?.full_name ||
+  data.user?.email ||
+  "Kullanıcı";
+const schoolNumber = data.user?.user_metadata?.okul_no || "";
 
-    if (role === "Ogrenci") {
-      router.push("/student/classes");
-    } else {
-      router.push("/dashboard");
-    }
+try {
+  await syncAirtableUser({
+    authId: data.user.id,
+    email: data.user.email || email,
+    fullName,
+    role,
+    schoolNumber,
+  });
+} catch (syncError) {
+  console.error("Airtable sync failed:", syncError);
+}
+
+if (role === "Ogrenci") {
+  router.push("/student/classes");
+} else {
+  router.push("/dashboard");
+}
 
     setLoading(false);
   }
