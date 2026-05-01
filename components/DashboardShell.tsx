@@ -13,6 +13,10 @@ const teacherMenuItems = [
   { label: "Sınıflar", href: "/teacher/classes", key: "classes" },
   { label: "Yeni Sınıf", href: "/teacher/classes/new", key: "new-class" },
   { label: "Katılım İstekleri", href: "/teacher/join-requests", key: "requests" },
+  { label: "Ödevler", href: "/teacher/assignments", key: "assignments" },
+  { label: "Notlar", href: "/teacher/grades", key: "grades" },
+  { label: "Yoklama", href: "/teacher/attendance", key: "attendance" },
+  { label: "AI Risk Analizi", href: "/teacher/risk-analysis", key: "risk" },
 ];
 
 const studentMenuItems = [
