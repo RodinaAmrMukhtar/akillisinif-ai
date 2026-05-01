@@ -1,9 +1,12 @@
 import {
   BsActivity,
   BsArrowRight,
+  BsBell,
+  BsChatDots,
   BsCheckCircle,
   BsClipboardData,
   BsCollection,
+  BsCpu,
   BsPersonPlus,
 } from "react-icons/bs";
 import Footer from "@/components/Footer";
@@ -11,20 +14,49 @@ import Navbar from "@/components/Navbar";
 
 const teacherFlow = [
   "Öğretmen sisteme kayıt olur ve giriş yapar.",
-  "Yeni sınıf oluşturur.",
-  "Sistem davet kodu üretir.",
-  "Katılım isteklerini onaylar.",
+  "Yeni sınıf oluşturur ve sistem sınıf kodu üretir.",
+  "Öğrencilerin katılım isteklerini onaylar.",
   "Ödev, not ve yoklama verilerini işler.",
-  "AI risk panelini inceler ve gerekirse müdahale planı oluşturur.",
+  "AI risk panelinden risk sinyallerini inceler.",
+  "Mesajlaşma ve bildirim merkeziyle öğrencilerle iletişim kurar.",
+  "Gerekirse AI destekli müdahale planı oluşturur.",
 ];
 
 const studentFlow = [
   "Öğrenci sisteme kayıt olur.",
   "Sınıf kodunu kullanarak katılım isteği gönderir.",
   "Öğretmen onayını bekler.",
-  "Onay sonrası sınıf içeriğine erişir.",
+  "Onay sonrası sınıf içeriklerine erişir.",
   "Notlarını, yoklama durumunu ve ödevlerini görür.",
-  "Kendi gelişim önerilerini takip eder.",
+  "Sınıf mesajlaşmasını ve bildirimlerini takip eder.",
+  "AI çalışma asistanından ders ve sistem desteği alır.",
+];
+
+const architecture = [
+  {
+    title: "Frontend",
+    text: "Next.js ile geliştirilen modern, beyaz ve mavi temalı arayüz.",
+  },
+  {
+    title: "Auth",
+    text: "Supabase ile kullanıcı kayıt, giriş ve rol yönetimi.",
+  },
+  {
+    title: "Database",
+    text: "Airtable üzerinde sınıf, öğrenci, ödev, not, yoklama ve risk tabloları.",
+  },
+  {
+    title: "Realtime",
+    text: "Supabase Realtime ile chat ve bildirim akışları.",
+  },
+  {
+    title: "AI",
+    text: "OpenRouter API ve kontrollü RAG mantığı ile eğitim odaklı asistan.",
+  },
+  {
+    title: "Automation",
+    text: "n8n ile risk uyarısı, haftalık rapor ve bildirim otomasyonları.",
+  },
 ];
 
 export default function DemoPage() {
@@ -43,11 +75,12 @@ export default function DemoPage() {
             </h1>
             <p className="mt-6 text-lg leading-8 text-slate-600">
               Bu sayfa, öğretmen ve öğrenci perspektifinden sistemin nasıl
-              çalıştığını profesyonel ve sunum uygun bir biçimde özetler.
+              çalıştığını; veri tabanı, mesajlaşma, bildirim, AI asistan ve
+              erken uyarı modülleriyle birlikte açıklar.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-5">
             <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
               <div className="inline-flex rounded-2xl bg-blue-50 p-3 text-blue-700">
                 <BsCollection className="text-xl" />
@@ -56,19 +89,7 @@ export default function DemoPage() {
                 Sınıf Yönetimi
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Sınıf oluşturma, davet kodu üretme ve üyelik yönetimi.
-              </p>
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-              <div className="inline-flex rounded-2xl bg-blue-50 p-3 text-blue-700">
-                <BsPersonPlus className="text-xl" />
-              </div>
-              <h3 className="mt-4 text-lg font-bold text-slate-950">
-                Katılım Akışı
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Öğrenci sınıf koduyla katılır, öğretmen onaylar.
+                Sınıf oluşturma ve kodla katılım.
               </p>
             </div>
 
@@ -80,7 +101,7 @@ export default function DemoPage() {
                 Veri Takibi
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Not, yoklama ve ödev verileri sistemde düzenli tutulur.
+                Ödev, not ve yoklama kayıtları.
               </p>
             </div>
 
@@ -92,7 +113,31 @@ export default function DemoPage() {
                 Erken Uyarı
               </h3>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                AI destekli risk analizi ile öğretmene aksiyon önerilir.
+                Risk sinyali ve müdahale önerisi.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <div className="inline-flex rounded-2xl bg-blue-50 p-3 text-blue-700">
+                <BsChatDots className="text-xl" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-slate-950">
+                Mesajlaşma
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Sınıf ve özel görüşme alanları.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+              <div className="inline-flex rounded-2xl bg-blue-50 p-3 text-blue-700">
+                <BsCpu className="text-xl" />
+              </div>
+              <h3 className="mt-4 text-lg font-bold text-slate-950">
+                AI Asistan
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Eğitim odaklı kontrollü yardım.
               </p>
             </div>
           </div>
@@ -153,6 +198,39 @@ export default function DemoPage() {
         </div>
       </section>
 
+      <section className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-7xl px-6 py-20">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
+              Teknik Mimari
+            </p>
+            <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950">
+              Ücretsiz ve düşük maliyetli servislerle gerçekçi sistem tasarımı
+            </h2>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Proje, üretim ortamı mantığına benzeyen ancak prototip geliştirmeye
+              uygun, bulut tabanlı ve modüler bir mimari üzerine kurulmuştur.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {architecture.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
+              >
+                <h3 className="text-xl font-bold text-slate-950">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-6 py-20">
           <div className="rounded-3xl border border-blue-100 bg-blue-50 p-8">
@@ -165,11 +243,12 @@ export default function DemoPage() {
               </h2>
               <p className="mt-4 text-lg leading-8 text-blue-900">
                 Bu proje; öğrenci başarısını tahmin etme, riskli öğrencileri
-                erken fark etme ve öğretmene müdahale önerisi sunma yaklaşımıyla
-                klasik sınıf yönetim sistemlerinden ayrılır.
+                erken fark etme, öğretmene müdahale önerisi sunma ve öğrencinin
+                çalışma sürecini destekleme yaklaşımıyla klasik sınıf yönetim
+                sistemlerinden ayrılır.
               </p>
 
-              <div className="mt-8 grid gap-4 md:grid-cols-3">
+              <div className="mt-8 grid gap-4 md:grid-cols-4">
                 <div className="rounded-2xl bg-white p-5 shadow-sm">
                   <BsCheckCircle className="text-lg text-blue-700" />
                   <p className="mt-3 text-sm font-semibold text-slate-950">
@@ -180,14 +259,21 @@ export default function DemoPage() {
                 <div className="rounded-2xl bg-white p-5 shadow-sm">
                   <BsCheckCircle className="text-lg text-blue-700" />
                   <p className="mt-3 text-sm font-semibold text-slate-950">
-                    Öğretmen odaklı destek
+                    Öğretmen karar desteği
                   </p>
                 </div>
 
                 <div className="rounded-2xl bg-white p-5 shadow-sm">
-                  <BsCheckCircle className="text-lg text-blue-700" />
+                  <BsBell className="text-lg text-blue-700" />
                   <p className="mt-3 text-sm font-semibold text-slate-950">
-                    Erken uyarı mantığı
+                    Bildirim ve takip
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white p-5 shadow-sm">
+                  <BsPersonPlus className="text-lg text-blue-700" />
+                  <p className="mt-3 text-sm font-semibold text-slate-950">
+                    Öğrenci destek akışı
                   </p>
                 </div>
               </div>

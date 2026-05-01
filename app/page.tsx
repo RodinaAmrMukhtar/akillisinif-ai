@@ -3,8 +3,11 @@ import {
   BsActivity,
   BsArrowRight,
   BsBarChartLine,
+  BsBell,
   BsCalendarCheck,
+  BsChatDots,
   BsClipboardCheck,
+  BsCpu,
   BsPeople,
 } from "react-icons/bs";
 import Footer from "@/components/Footer";
@@ -14,26 +17,38 @@ const featureCards = [
   {
     title: "Sınıf Yönetimi",
     description:
-      "Öğretmenler sınıf oluşturur, öğrenci katılım isteklerini yönetir ve davet kodu üretir.",
+      "Öğretmenler sınıf oluşturur, öğrenciler sınıf koduyla katılım isteği gönderir ve öğretmen onayıyla sınıfa dahil olur.",
     icon: BsPeople,
   },
   {
     title: "Ödev, Not ve Yoklama",
     description:
-      "Akademik süreçler tek platformdan izlenir; ödevler, not kayıtları ve yoklamalar düzenli takip edilir.",
+      "Ödevler, teslimler, not kayıtları ve yoklama verileri tek akademik panel üzerinden takip edilir.",
     icon: BsClipboardCheck,
   },
   {
     title: "AI Risk Analizi",
     description:
-      "Not düşüşü, devamsızlık artışı ve ödev teslim oranı gibi göstergelerle erken uyarı üretilir.",
+      "Not düşüşü, devamsızlık artışı ve ödev teslim oranı gibi göstergelerle erken uyarı sinyalleri oluşturulur.",
     icon: BsActivity,
   },
   {
-    title: "Karar Destek Paneli",
+    title: "Mesajlaşma",
     description:
-      "Öğretmenler risk sinyallerini görür, öğrenci bazlı müdahale planları oluşturabilir.",
-    icon: BsBarChartLine,
+      "Sınıf grup sohbetleri ve öğretmen-öğrenci özel görüşmeleri için güvenli iletişim alanı planlanmıştır.",
+    icon: BsChatDots,
+  },
+  {
+    title: "Bildirim Merkezi",
+    description:
+      "Katılım istekleri, risk uyarıları, ödev hatırlatmaları ve raporlar tek bildirim merkezinde toplanır.",
+    icon: BsBell,
+  },
+  {
+    title: "AI Çalışma Asistanı",
+    description:
+      "Öğrenciler sistem kullanımı, ders çalışma ve programlama konularında kontrollü AI desteği alabilir.",
+    icon: BsCpu,
   },
 ];
 
@@ -44,6 +59,8 @@ const workflowSteps = [
   "Öğretmen isteği onaylar ve öğrenci sınıfa alınır.",
   "Ödev, not ve yoklama verileri sisteme işlenir.",
   "AI erken uyarı motoru risk sinyalleri üretir.",
+  "Bildirimler ve mesajlaşma modülleri kullanıcıları bilgilendirir.",
+  "Öğretmen gerektiğinde müdahale planı oluşturur.",
 ];
 
 export default function HomePage() {
@@ -59,15 +76,17 @@ export default function HomePage() {
             </div>
 
             <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-slate-950 md:text-7xl">
-              Akademik sınıf yönetimini <span className="text-blue-700">veri</span>{" "}
-              ve <span className="text-blue-700">yapay zekâ</span> ile güçlendirin.
+              Akademik sınıf yönetimini{" "}
+              <span className="text-blue-700">veri</span> ve{" "}
+              <span className="text-blue-700">yapay zekâ</span> ile güçlendirin.
             </h1>
 
             <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
               AkıllıSınıf AI; öğretmenlerin sınıf oluşturmasını, öğrencilerin
-              sınıf koduyla katılmasını, akademik verilerin takip edilmesini ve
-              riskli öğrenciler için erken destek kararlarının alınmasını
-              sağlayan modern bir eğitim teknolojisi platformudur.
+              sınıf koduyla katılmasını, akademik verilerin takip edilmesini,
+              mesajlaşma ve bildirim akışlarının yönetilmesini ve riskli
+              öğrenciler için erken destek kararlarının alınmasını sağlayan
+              modern bir eğitim teknolojisi platformudur.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -95,7 +114,7 @@ export default function HomePage() {
 
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-3xl font-bold text-blue-700">AI</p>
-                <p className="mt-2 text-sm text-slate-500">Risk analizi motoru</p>
+                <p className="mt-2 text-sm text-slate-500">Risk ve asistan modülü</p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -149,6 +168,26 @@ export default function HomePage() {
                   oranında azalma tespit edildi.
                 </p>
               </div>
+
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-950">
+                    Mesajlaşma
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    4 okunmamış sınıf mesajı
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-950">
+                    Bildirimler
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    2 yeni sistem bildirimi
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -161,23 +200,23 @@ export default function HomePage() {
               Sistem Modülleri
             </p>
             <h2 className="mt-3 text-4xl font-bold tracking-tight text-slate-950">
-              Profesörlerin görmek isteyeceği temel yapı
+              Sadece not takibi değil, bütüncül eğitim platformu
             </h2>
             <p className="mt-4 text-lg leading-8 text-slate-600">
-              Sistem sadece bir arayüz değil; sınıf yönetimi, veri takibi,
-              karar destek mantığı ve otomasyon temelli bütüncül bir akademik
-              platform yaklaşımı sunar.
+              Sistem; sınıf yönetimi, akademik veri takibi, AI risk analizi,
+              güvenli iletişim, bildirim ve öğrenci destek asistanı modülleriyle
+              gerçek bir eğitim teknolojisi projesi gibi tasarlanmıştır.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {featureCards.map((card) => {
               const Icon = card.icon;
 
               return (
                 <div
                   key={card.title}
-                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <div className="inline-flex rounded-2xl bg-blue-50 p-3 text-blue-700">
                     <Icon className="text-xl" />
@@ -206,9 +245,9 @@ export default function HomePage() {
               Sistem nasıl işler?
             </h2>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Öğretmen ve öğrenci etkileşimi, veri tabanı kayıtları ve AI risk
-              mantığı birlikte çalışarak sürdürülebilir bir sınıf yönetim
-              mekanizması oluşturur.
+              Öğretmen ve öğrenci etkileşimi, veri tabanı kayıtları, bildirimler
+              ve AI risk mantığı birlikte çalışarak sürdürülebilir bir sınıf
+              yönetim mekanizması oluşturur.
             </p>
 
             <div className="mt-10 space-y-4">
@@ -234,10 +273,10 @@ export default function HomePage() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-slate-950">
-                    Veri Kaynakları
+                    Teknik Mimari
                   </p>
                   <p className="text-sm text-slate-500">
-                    Yoklama, not, ödev ve üyelik verileri
+                    Frontend, veri tabanı, auth, chat ve otomasyon katmanları
                   </p>
                 </div>
               </div>
@@ -245,10 +284,19 @@ export default function HomePage() {
               <div className="mt-8 space-y-4">
                 <div className="rounded-2xl bg-slate-50 p-4">
                   <p className="text-sm font-semibold text-slate-950">
+                    Next.js + Vercel
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">
+                    Modern arayüz ve API route yapısı.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-950">
                     Airtable
                   </p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Ana veri tabanı yapısı burada tutulur.
+                    Sınıf, kullanıcı, ödev, not, yoklama ve risk verileri.
                   </p>
                 </div>
 
@@ -257,14 +305,16 @@ export default function HomePage() {
                     Supabase
                   </p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Kullanıcı kayıt ve giriş işlemlerini yönetecektir.
+                    Kimlik doğrulama, gerçek zamanlı chat ve bildirim altyapısı.
                   </p>
                 </div>
 
                 <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-sm font-semibold text-slate-950">n8n</p>
+                  <p className="text-sm font-semibold text-slate-950">
+                    OpenRouter + RAG
+                  </p>
                   <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Bildirim, rapor ve otomasyon akışları kurulacaktır.
+                    Kontrollü AI asistan ve güvenli eğitim odaklı yanıt üretimi.
                   </p>
                 </div>
 

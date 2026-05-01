@@ -33,10 +33,7 @@ textarea {
   font: inherit;
 }
 
-/* Project rule:
-   Whenever we use a strong blue background,
-   text inside it should automatically be white.
-*/
+/* Strong blue or indigo UI elements should always use white text. */
 .bg-blue-600,
 .bg-blue-700,
 .bg-blue-800,
@@ -57,4 +54,23 @@ textarea {
 .bg-indigo-800 *,
 .bg-indigo-900 * {
   color: #ffffff !important;
+}
+
+/* Cleaner scrollbars for dashboard pages. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
