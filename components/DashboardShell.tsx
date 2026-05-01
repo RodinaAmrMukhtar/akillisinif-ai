@@ -2,12 +2,15 @@ import Link from "next/link";
 import { IconType } from "react-icons";
 import {
   BsActivity,
+  BsBell,
   BsBook,
   BsBoxArrowRight,
   BsCalendarCheck,
   BsCardChecklist,
+  BsChatDots,
   BsClipboardData,
   BsCollection,
+  BsCpu,
   BsGrid1X2,
   BsJournalText,
   BsPersonCheck,
@@ -37,11 +40,19 @@ const teacherMenuItems: MenuItem[] = [
   { label: "Notlar", href: "/teacher/grades", key: "grades", icon: BsJournalText },
   { label: "Yoklama", href: "/teacher/attendance", key: "attendance", icon: BsCalendarCheck },
   { label: "AI Risk Analizi", href: "/teacher/risk-analysis", key: "risk", icon: BsActivity },
+  { label: "Mesajlar", href: "/teacher/chat", key: "teacher-chat", icon: BsChatDots },
+  { label: "AI Asistan", href: "/teacher/ai-assistant", key: "teacher-ai", icon: BsCpu },
 ];
 
 const studentMenuItems: MenuItem[] = [
   { label: "Sınıflarım", href: "/student/classes", key: "student-classes", icon: BsBook },
   { label: "Sınıfa Katıl", href: "/student/join-class", key: "join", icon: BsClipboardData },
+  { label: "Mesajlar", href: "/student/chat", key: "student-chat", icon: BsChatDots },
+  { label: "AI Asistan", href: "/student/ai-assistant", key: "student-ai", icon: BsCpu },
+];
+
+const systemMenuItems: MenuItem[] = [
+  { label: "Bildirimler", href: "/notifications", key: "notifications", icon: BsBell },
 ];
 
 function MenuSection({
@@ -126,7 +137,7 @@ export default function DashboardShell({
             </div>
 
             <p className="mt-3 text-xs leading-5 text-blue-800">
-              Supabase ve Airtable bağlantısı sonraki aşamada eklenecektir.
+              Supabase, Airtable ve AI bağlantıları sonraki aşamada eklenecektir.
             </p>
           </div>
 
@@ -140,6 +151,12 @@ export default function DashboardShell({
             <MenuSection
               title="Öğrenci Menüsü"
               items={studentMenuItems}
+              activePage={activePage}
+            />
+
+            <MenuSection
+              title="Sistem"
+              items={systemMenuItems}
               activePage={activePage}
             />
           </div>
@@ -168,9 +185,12 @@ export default function DashboardShell({
               </p>
             </div>
 
-            <div className="hidden rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 md:block">
-              AkıllıSınıf AI v0.1
-            </div>
+            <Link
+              href="/notifications"
+              className="hidden rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100 md:block"
+            >
+              Bildirim Merkezi
+            </Link>
           </div>
         </header>
 
