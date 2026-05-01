@@ -3,9 +3,16 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { User } from "@supabase/supabase-js";
-import { BsBoxArrowRight, BsGrid1X2, BsPersonCircle } from "react-icons/bs";
+import type { User } from "@supabase/supabase-js";
+import {
+  BsBell,
+  BsBoxArrowRight,
+  BsGrid1X2,
+  BsPersonCircle,
+} from "react-icons/bs";
 import { supabase } from "@/lib/supabaseClient";
+
+const demoUnreadNotificationCount = 3;
 
 function getDisplayName(user: User | null) {
   if (!user) return "";
@@ -30,9 +37,7 @@ function getRole(user: User | null) {
 function getDashboardPath(user: User | null) {
   const role = user?.user_metadata?.rol;
 
-  if (role === "Ogrenci") {
-    return "/student/classes";
-  }
+  if (role === "Ogrenci") return "/student/classes";
 
   return "/dashboard";
 }
@@ -51,6 +56,7 @@ function getInitials(name: string) {
 
 export default function Navbar() {
   const router = useRouter();
+
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
 
@@ -62,6 +68,7 @@ export default function Navbar() {
   useEffect(() => {
     async function loadUser() {
       const { data } = await supabase.auth.getUser();
+
       setUser(data.user);
       setLoadingUser(false);
     }
@@ -129,9 +136,15 @@ export default function Navbar() {
 
           <Link
             href="/notifications"
-            className="text-sm font-medium text-slate-600 transition hover:text-blue-700"
+            className="relative inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-blue-700"
           >
+            <BsBell />
             Bildirimler
+            {user && (
+              <span className="absolute -right-5 -top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
+                {demoUnreadNotificationCount}
+              </span>
+            )}
           </Link>
         </nav>
 
@@ -141,7 +154,7 @@ export default function Navbar() {
           ) : user ? (
             <div className="flex items-center gap-3">
               <Link
-                href={dashboardPath}
+                href="/profile"
                 className="hidden items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 transition hover:bg-slate-100 md:flex"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white">
@@ -167,7 +180,7 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                className="hidden items-center gap-2 rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:inline-flex"
               >
                 <BsBoxArrowRight />
                 Çıkış

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
@@ -22,6 +22,7 @@ import {
   BsJournalText,
   BsPersonCheck,
   BsPlusSquare,
+  BsShieldCheck,
 } from "react-icons/bs";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -40,6 +41,8 @@ type MenuItem = {
 };
 
 type UserRole = "Ogretmen" | "Ogrenci" | "Unknown";
+
+const demoUnreadNotificationCount = 3;
 
 const teacherMenuItems: MenuItem[] = [
   {
@@ -219,6 +222,14 @@ function getMainMenu(role: UserRole) {
   };
 }
 
+function isTeacherOnlyPath(pathname: string) {
+  return pathname === "/dashboard" || pathname.startsWith("/teacher");
+}
+
+function isStudentOnlyPath(pathname: string) {
+  return pathname.startsWith("/student");
+}
+
 function MenuSection({
   title,
   items,
@@ -251,6 +262,11 @@ function MenuSection({
             >
               <Icon className="shrink-0 text-base" />
               <span>{item.label}</span>
+              {item.key === "notifications" && (
+                <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
+                  {demoUnreadNotificationCount}
+                </span>
+              )}
             </Link>
           );
         })}
@@ -266,9 +282,11 @@ export default function DashboardShell({
   activePage = "dashboard",
 }: DashboardShellProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const [user, setUser] = useState<User | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
+  const [accessChecked, setAccessChecked] = useState(false);
 
   const role = getUserRole(user);
   const roleLabel = getRoleLabel(role);
@@ -300,11 +318,50 @@ export default function DashboardShell({
     };
   }, []);
 
+  useEffect(() => {
+    if (loadingUser) return;
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (role === "Ogrenci" && isTeacherOnlyPath(pathname)) {
+      router.push("/yetkisiz-erisim");
+      return;
+    }
+
+    if (role === "Ogretmen" && isStudentOnlyPath(pathname)) {
+      router.push("/yetkisiz-erisim");
+      return;
+    }
+
+    setAccessChecked(true);
+  }, [loadingUser, pathname, role, router, user]);
+
   async function handleLogout() {
     await supabase.auth.signOut();
     setUser(null);
     router.push("/logout");
     router.refresh();
+  }
+
+  if (loadingUser || !accessChecked) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 text-slate-950">
+        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-blue-50 text-blue-700">
+            <BsShieldCheck className="text-2xl" />
+          </div>
+          <h1 className="mt-5 text-2xl font-bold text-slate-950">
+            Oturum kontrol ediliyor
+          </h1>
+          <p className="mt-3 text-sm leading-7 text-slate-600">
+            Kullanıcı rolü ve sayfa erişim yetkisi doğrulanıyor.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   return (
@@ -328,39 +385,37 @@ export default function DashboardShell({
         </div>
 
         <div className="flex-1 overflow-y-auto px-4 py-5">
-          <div className="mb-6 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-            {loadingUser ? (
-              <div className="space-y-3">
-                <div className="h-11 w-11 animate-pulse rounded-xl bg-blue-100" />
-                <div className="h-4 w-36 animate-pulse rounded bg-blue-100" />
-                <div className="h-3 w-28 animate-pulse rounded bg-blue-100" />
+          <Link
+            href="/profile"
+            className="mb-6 block rounded-2xl border border-blue-100 bg-blue-50 p-4 transition hover:bg-blue-100"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white shadow-sm">
+                {initials}
               </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white shadow-sm">
-                    {initials}
-                  </div>
 
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-blue-950">
-                      {displayName}
-                    </p>
-                    <p className="truncate text-xs font-medium text-blue-700">
-                      {roleLabel}
-                    </p>
-                  </div>
-                </div>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-blue-950">
+                  {displayName}
+                </p>
+                <p className="truncate text-xs font-medium text-blue-700">
+                  {roleLabel}
+                </p>
+              </div>
+            </div>
 
-                <div className="mt-4 rounded-xl bg-white/70 p-3">
-                  <p className="truncate text-xs text-blue-900">{email}</p>
-                  <p className="mt-1 text-xs leading-5 text-blue-800">
-                    {roleDescription}
-                  </p>
-                </div>
-              </>
-            )}
-          </div>
+            <div className="mt-4 rounded-xl bg-white/70 p-3">
+              <p className="truncate text-xs text-blue-900">{email}</p>
+              <p className="mt-1 text-xs leading-5 text-blue-800">
+                {roleDescription}
+              </p>
+            </div>
+
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-white/70 px-3 py-2 text-xs font-semibold text-emerald-700">
+              <BsShieldCheck />
+              Rol doğrulaması yapıldı
+            </div>
+          </Link>
 
           <div className="space-y-7">
             <MenuSection
@@ -412,9 +467,12 @@ export default function DashboardShell({
             <div className="hidden items-center gap-3 md:flex">
               <Link
                 href="/notifications"
-                className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100"
+                className="relative rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100"
               >
                 Bildirim Merkezi
+                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
+                  {demoUnreadNotificationCount}
+                </span>
               </Link>
 
               <button

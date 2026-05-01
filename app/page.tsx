@@ -1,3 +1,4 @@
+import AuthHomeCard from "@/components/AuthHomeCard";
 import Link from "next/link";
 import {
   BsActivity,
@@ -105,7 +106,7 @@ export default function HomePage() {
                 Demo Akışını İncele
               </Link>
             </div>
-
+            <AuthHomeCard />
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <p className="text-3xl font-bold text-blue-700">20+</p>
