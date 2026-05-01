@@ -1,35 +1,10 @@
+import Navbar from "@/components/Navbar";
+
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-slate-950 text-white">
       <section className="mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8">
-        <nav className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500 text-lg font-bold shadow-lg shadow-indigo-500/30">
-              AS
-            </div>
-            <div>
-              <p className="text-lg font-bold tracking-tight">AkıllıSınıf AI</p>
-              <p className="text-xs text-slate-400">
-                Yapay Zekâ Destekli Eğitim Platformu
-              </p>
-            </div>
-          </div>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <a
-              href="/login"
-              className="rounded-xl px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
-            >
-              Giriş Yap
-            </a>
-            <a
-              href="/register"
-              className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
-            >
-              Kayıt Ol
-            </a>
-          </div>
-        </nav>
+        <Navbar variant="dark" />
 
         <div className="grid flex-1 items-center gap-12 py-20 lg:grid-cols-2">
           <div>
