@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { User } from "@supabase/supabase-js";
 import { IconType } from "react-icons";
 import {
   BsActivity,
@@ -12,10 +17,12 @@ import {
   BsCollection,
   BsCpu,
   BsGrid1X2,
+  BsHouseDoor,
   BsJournalText,
   BsPersonCheck,
   BsPlusSquare,
 } from "react-icons/bs";
+import { supabase } from "@/lib/supabaseClient";
 
 type DashboardShellProps = {
   children: React.ReactNode;
@@ -54,6 +61,38 @@ const studentMenuItems: MenuItem[] = [
 const systemMenuItems: MenuItem[] = [
   { label: "Bildirimler", href: "/notifications", key: "notifications", icon: BsBell },
 ];
+
+function getDisplayName(user: User | null) {
+  if (!user) return "Demo Kullanıcı";
+
+  return (
+    user.user_metadata?.ad_soyad ||
+    user.user_metadata?.full_name ||
+    user.email ||
+    "Kullanıcı"
+  );
+}
+
+function getRole(user: User | null) {
+  const role = user?.user_metadata?.rol;
+
+  if (role === "Ogretmen") return "Öğretmen";
+  if (role === "Ogrenci") return "Öğrenci";
+
+  return "Ön izleme modu";
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(" ").filter(Boolean);
+
+  if (parts.length === 0) return "AS";
+
+  const first = parts[0]?.charAt(0) || "";
+  const second =
+    parts.length > 1 ? parts[parts.length - 1]?.charAt(0) || "" : "";
+
+  return `${first}${second}`.toLocaleUpperCase("tr-TR");
+}
 
 function MenuSection({
   title,
@@ -101,6 +140,43 @@ export default function DashboardShell({
   description,
   activePage = "dashboard",
 }: DashboardShellProps) {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  const displayName = getDisplayName(user);
+  const roleLabel = getRole(user);
+  const initials = getInitials(displayName);
+  const email = user?.email || "demo@akillisinif.ai";
+
+  useEffect(() => {
+    async function loadUser() {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+      setLoadingUser(false);
+    }
+
+    loadUser();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        setLoadingUser(false);
+      },
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    setUser(null);
+    router.push("/");
+    router.refresh();
+  }
+
   return (
     <main className="flex min-h-screen bg-slate-50 text-slate-950">
       <aside className="flex w-[292px] shrink-0 flex-col border-r border-slate-200 bg-white">
@@ -121,24 +197,39 @@ export default function DashboardShell({
           </Link>
         </div>
 
-        <div className="flex-1 px-4 py-5">
+        <div className="flex-1 overflow-y-auto px-4 py-5">
           <div className="mb-6 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white">
-                DU
+            {loadingUser ? (
+              <div className="space-y-3">
+                <div className="h-10 w-10 animate-pulse rounded-xl bg-blue-100" />
+                <div className="h-4 w-36 animate-pulse rounded bg-blue-100" />
+                <div className="h-3 w-28 animate-pulse rounded bg-blue-100" />
               </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white shadow-sm">
+                    {initials}
+                  </div>
 
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-blue-950">
-                  Demo Kullanıcı
-                </p>
-                <p className="truncate text-xs text-blue-700">Ön izleme modu</p>
-              </div>
-            </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-blue-950">
+                      {displayName}
+                    </p>
+                    <p className="truncate text-xs font-medium text-blue-700">
+                      {roleLabel}
+                    </p>
+                  </div>
+                </div>
 
-            <p className="mt-3 text-xs leading-5 text-blue-800">
-              Supabase, Airtable ve AI bağlantıları sonraki aşamada eklenecektir.
-            </p>
+                <div className="mt-4 rounded-xl bg-white/70 p-3">
+                  <p className="truncate text-xs text-blue-900">{email}</p>
+                  <p className="mt-1 text-xs leading-5 text-blue-800">
+                    Aktif Supabase oturumu
+                  </p>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="space-y-7">
@@ -162,14 +253,23 @@ export default function DashboardShell({
           </div>
         </div>
 
-        <div className="border-t border-slate-200 p-4">
+        <div className="space-y-2 border-t border-slate-200 p-4">
           <Link
             href="/"
             className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
           >
-            <BsBoxArrowRight className="shrink-0 text-base" />
+            <BsHouseDoor className="shrink-0 text-base" />
             <span>Ana Sayfaya Dön</span>
           </Link>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700"
+          >
+            <BsBoxArrowRight className="shrink-0 text-base" />
+            <span>Çıkış Yap</span>
+          </button>
         </div>
       </aside>
 
@@ -185,12 +285,22 @@ export default function DashboardShell({
               </p>
             </div>
 
-            <Link
-              href="/notifications"
-              className="hidden rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100 md:block"
-            >
-              Bildirim Merkezi
-            </Link>
+            <div className="hidden items-center gap-3 md:flex">
+              <Link
+                href="/notifications"
+                className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100"
+              >
+                Bildirim Merkezi
+              </Link>
+
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                Çıkış Yap
+              </button>
+            </div>
           </div>
         </header>
 
