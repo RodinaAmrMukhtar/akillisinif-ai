@@ -29,8 +29,6 @@ type AirtableClassFields = {
   Aktif_Kod?: string;
   Katilim_Onayi_Gerekli_Mi?: boolean;
   Durum?: string;
-  Ogrenci_Sayisi?: number;
-  Riskli_Ogrenci_Sayisi?: number;
 };
 
 type AirtableMembershipFields = {
@@ -40,7 +38,6 @@ type AirtableMembershipFields = {
   Uyelik_Rolu?: string;
   Durum?: string;
   Davet_Kodu?: string[];
-  Katilma_Tarihi?: string;
 };
 
 function escapeAirtableFormulaValue(value: string) {
@@ -61,17 +58,14 @@ async function findTeacherByAuthId(authId: string) {
 }
 
 function isActiveStudentMembership(record: AirtableRecord<AirtableMembershipFields>) {
-  const role = record.fields.Uyelik_Rolu;
-  const status = record.fields.Durum;
-
-  return role === "Ogrenci" && status === "Aktif";
+  return record.fields.Uyelik_Rolu === "Ogrenci" && record.fields.Durum === "Aktif";
 }
 
 function isPendingStudentMembership(record: AirtableRecord<AirtableMembershipFields>) {
-  const role = record.fields.Uyelik_Rolu;
-  const status = record.fields.Durum;
-
-  return role === "Ogrenci" && status === "Onay Bekliyor";
+  return (
+    record.fields.Uyelik_Rolu === "Ogrenci" &&
+    record.fields.Durum === "Onay Bekliyor"
+  );
 }
 
 export async function GET(request: Request) {
@@ -115,7 +109,9 @@ export async function GET(request: Request) {
       return teacherLinks.includes(teacher.id);
     });
 
-    const teacherClassesWithCounts = teacherClasses.map((classRecord) => {
+    const teacherClassIds = teacherClasses.map((record) => record.id);
+
+    const classSummaries = teacherClasses.map((classRecord) => {
       const classMemberships = membershipsResponse.records.filter((membership) => {
         const linkedClasses = membership.fields.Sinif || [];
         return linkedClasses.includes(classRecord.id);
@@ -130,26 +126,58 @@ export async function GET(request: Request) {
         courseName: classRecord.fields.Ders_Adi || "Ders belirtilmedi",
         academicYear: classRecord.fields.Akademik_Yil || "2025-2026",
         term: classRecord.fields.Donem || "1. Dönem",
-        level: classRecord.fields.Seviye || "Seviye belirtilmedi",
-        description: classRecord.fields.Aciklama || "",
-        classCode: classRecord.fields.Aktif_Kod || "",
-        joinApprovalRequired: classRecord.fields.Katilim_Onayi_Gerekli_Mi ?? true,
         status: classRecord.fields.Durum || "Aktif",
+        classCode: classRecord.fields.Aktif_Kod || "",
         studentCount: activeStudentCount,
         pendingJoinRequestCount,
         riskyStudentCount: 0,
       };
     });
 
+    const activeClassCount = teacherClasses.filter(
+      (record) => (record.fields.Durum || "Aktif") === "Aktif",
+    ).length;
+
+    const activeStudentIds = new Set<string>();
+
+    membershipsResponse.records.forEach((membership) => {
+      const linkedClasses = membership.fields.Sinif || [];
+      const linkedUsers = membership.fields.Kullanici || [];
+      const belongsToTeacherClass = linkedClasses.some((classId) =>
+        teacherClassIds.includes(classId),
+      );
+
+      if (belongsToTeacherClass && isActiveStudentMembership(membership)) {
+        linkedUsers.forEach((userId) => activeStudentIds.add(userId));
+      }
+    });
+
+    const pendingJoinRequestCount = membershipsResponse.records.filter((membership) => {
+      const linkedClasses = membership.fields.Sinif || [];
+      const belongsToTeacherClass = linkedClasses.some((classId) =>
+        teacherClassIds.includes(classId),
+      );
+
+      return belongsToTeacherClass && isPendingStudentMembership(membership);
+    }).length;
+
     return NextResponse.json({
       ok: true,
-      classes: teacherClassesWithCounts,
+      dashboard: {
+        activeClassCount,
+        totalStudentCount: activeStudentIds.size,
+        pendingJoinRequestCount,
+        highRiskStudentCount: 0,
+        classSummaries,
+        riskModuleStatus:
+          "Risk analizi modülü gerçek veriye bağlanmadığı için şu anda 0 gösteriliyor.",
+      },
     });
   } catch (error) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Airtable sınıf listeleme işlemi başarısız.",
+        message: "Airtable öğretmen dashboard verisi alınamadı.",
         error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
