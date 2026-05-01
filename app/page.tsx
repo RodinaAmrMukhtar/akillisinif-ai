@@ -1,65 +1,132 @@
-import Image from "next/image";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
+    <main className="min-h-screen bg-slate-950 text-white">
+      <section className="mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-8">
+        <nav className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500 text-lg font-bold shadow-lg shadow-indigo-500/30">
+              AS
+            </div>
+            <div>
+              <p className="text-lg font-bold tracking-tight">AkıllıSınıf AI</p>
+              <p className="text-xs text-slate-400">
+                Yapay Zekâ Destekli Eğitim Platformu
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden items-center gap-3 md:flex">
             <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="/login"
+              className="rounded-xl px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
+              Giriş Yap
+            </a>
             <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              href="/register"
+              className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-slate-200"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              Kayıt Ol
+            </a>
+          </div>
+        </nav>
+
+        <div className="grid flex-1 items-center gap-12 py-20 lg:grid-cols-2">
+          <div>
+            <div className="mb-6 inline-flex rounded-full border border-indigo-400/30 bg-indigo-400/10 px-4 py-2 text-sm text-indigo-200">
+              Öğrenci performansı için erken uyarı ve akıllı takip sistemi
+            </div>
+
+            <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-white md:text-7xl">
+              Sınıf yönetimini{" "}
+              <span className="bg-gradient-to-r from-indigo-300 to-cyan-300 bg-clip-text text-transparent">
+                yapay zekâ
+              </span>{" "}
+              ile güçlendirin.
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+              AkıllıSınıf AI; öğretmenlerin sınıf oluşturmasını, öğrencilerin
+              sınıf koduyla katılmasını, not-yoklama-ödev verilerinin takip
+              edilmesini ve riskli öğrenciler için erken uyarı üretilmesini
+              sağlayan modern bir eğitim teknolojisi sistemidir.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a
+                href="/register"
+                className="rounded-2xl bg-indigo-500 px-6 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition hover:bg-indigo-400"
+              >
+                Sisteme Başla
+              </a>
+              <a
+                href="/login"
+                className="rounded-2xl border border-white/15 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Öğretmen / Öğrenci Girişi
+              </a>
+            </div>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-3">
+              <div>
+                <p className="text-3xl font-bold">20+</p>
+                <p className="text-sm text-slate-400">Veri tabanı tablosu</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold">AI</p>
+                <p className="text-sm text-slate-400">Risk analizi</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold">n8n</p>
+                <p className="text-sm text-slate-400">Otomasyon desteği</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl backdrop-blur">
+            <div className="rounded-2xl bg-slate-900 p-6">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-400">Öğretmen Paneli</p>
+                  <h2 className="text-2xl font-bold">10-A Matematik</h2>
+                </div>
+                <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                  Aktif
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <p className="text-sm text-slate-400">Öğrenci Sayısı</p>
+                  <p className="mt-2 text-3xl font-bold">28</p>
+                </div>
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <p className="text-sm text-slate-400">Bekleyen Katılım</p>
+                  <p className="mt-2 text-3xl font-bold">3</p>
+                </div>
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <p className="text-sm text-slate-400">Orta Risk</p>
+                  <p className="mt-2 text-3xl font-bold text-amber-300">5</p>
+                </div>
+                <div className="rounded-2xl bg-white/5 p-4">
+                  <p className="text-sm text-slate-400">Yüksek Risk</p>
+                  <p className="mt-2 text-3xl font-bold text-rose-300">2</p>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-indigo-300/20 bg-indigo-400/10 p-4">
+                <p className="text-sm font-semibold text-indigo-200">
+                  AI Erken Uyarı
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  Bu hafta 2 öğrencide ani not düşüşü ve 3 öğrencide ödev teslim
+                  oranında azalma tespit edildi.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
