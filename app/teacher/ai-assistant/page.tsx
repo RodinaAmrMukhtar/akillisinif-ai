@@ -1,175 +1,207 @@
-import DashboardShell from "@/components/DashboardShell";
+﻿"use client";
+
+import { FormEvent, useState } from "react";
 import {
-  BsCpu,
-  BsFileEarmarkText,
-  BsLightbulb,
+  BsBarChart,
+  BsGraphUp,
+  BsRobot,
   BsSend,
   BsShieldCheck,
 } from "react-icons/bs";
+import DashboardShell from "@/components/DashboardShell";
+import { askAcademicAssistant } from "@/lib/assistantApi";
+import { supabase } from "@/lib/supabaseClient";
 
-const teacherTools = [
-  {
-    title: "Müdahale Planı Öner",
-    description:
-      "Riskli öğrenci için haftalık destek planı, kısa hedefler ve takip önerileri üretir.",
-  },
-  {
-    title: "Sınıf Risk Özeti Yaz",
-    description:
-      "Sınıfın genel risk durumunu öğretmen diliyle kısa rapora dönüştürür.",
-  },
-  {
-    title: "Ödev Geri Bildirimi Hazırla",
-    description:
-      "Öğrencinin teslim durumuna göre destekleyici geri bildirim taslağı üretir.",
-  },
-  {
-    title: "Çalışma Planı Oluştur",
-    description:
-      "Öğrenci performansına göre kısa ve uygulanabilir çalışma planı önerir.",
-  },
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+const exampleQuestions = [
+  "Hangi öğrenciler risk altında?",
+  "Bugün öğretmen olarak neye öncelik vermeliyim?",
+  "Değerlendirme bekleyen ödev teslimleri var mı?",
+  "Yoklama durumunu analiz et.",
 ];
 
-const sampleMessages = [
-  {
-    role: "teacher",
-    text: "Mehmet Demir için kısa bir müdahale planı öner.",
-  },
-  {
-    role: "assistant",
-    text: "Öğrencinin ödev teslim oranı düşük ve devamsızlık oranı artıyor. İlk hafta eksik ödevlerin listelenmesi, kısa bireysel görüşme yapılması ve 3 günlük küçük çalışma hedefleri belirlenmesi önerilir. İkinci hafta not trendi ve devam durumu tekrar kontrol edilmelidir.",
-  },
-];
+export default function TeacherAiAssistantPage() {
+  const [question, setQuestion] = useState(exampleQuestions[0]);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      role: "assistant",
+      content:
+        "Merhaba. Ben AkıllıSınıf AI akademik analiz asistanıyım. Sınıf, ödev, not, yoklama ve risk verilerine göre öğretmen paneliniz için analiz üretebilirim.",
+    },
+  ]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
-export default function TeacherAIAssistantPage() {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const cleanQuestion = question.trim();
+
+    if (!cleanQuestion) return;
+
+    setLoading(true);
+    setErrorMessage("");
+
+    const { data } = await supabase.auth.getUser();
+
+    if (!data.user) {
+      setErrorMessage("Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+      setLoading(false);
+      return;
+    }
+
+    setMessages((current) => [
+      ...current,
+      {
+        role: "user",
+        content: cleanQuestion,
+      },
+    ]);
+
+    try {
+      const answer = await askAcademicAssistant({
+        authId: data.user.id,
+        role: "Ogretmen",
+        question: cleanQuestion,
+      });
+
+      setMessages((current) => [
+        ...current,
+        {
+          role: "assistant",
+          content: answer,
+        },
+      ]);
+
+      setQuestion("");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Akademik asistan yanıtı alınamadı.",
+      );
+    }
+
+    setLoading(false);
+  }
+
   return (
     <DashboardShell
-      title="Öğretmen AI Asistanı"
-      description="Öğretmenler bu alanda müdahale planı, sınıf özeti, geri bildirim taslağı ve akademik destek önerileri oluşturabilir. AI çıktıları karar destek amaçlıdır."
+      title="AI Asistan"
+      description="Gerçek Airtable verilerine dayalı öğretmen akademik analiz asistanı."
       activePage="teacher-ai"
     >
-      <div className="grid min-h-[720px] gap-6 xl:grid-cols-[1fr_380px]">
-        <section className="flex rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div className="border-b border-slate-200 p-6">
-              <div className="flex items-center gap-3">
-                <div className="rounded-2xl bg-blue-50 p-3 text-blue-700">
-                  <BsCpu />
-                </div>
+      <div className="space-y-8">
+        <section className="rounded-3xl border border-blue-100 bg-blue-50 p-8 shadow-sm">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="flex items-center gap-2 text-sm font-semibold text-blue-700">
+                <BsRobot />
+                Kural Tabanlı Akademik AI Hazırlık Modu
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight text-blue-950">
+                Öğretmen karar destek asistanı
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-blue-900">
+                Bu asistan sınıf, ödev, not, yoklama ve risk sinyallerini analiz eder.
+                Şu anda güvenli kural tabanlı modda çalışır. Bir sonraki adımda
+                OpenRouter bağlantısı eklenebilir.
+              </p>
+            </div>
 
-                <div>
-                  <h2 className="text-xl font-bold text-slate-950">
-                    Öğretmen Karar Destek Asistanı
-                  </h2>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Risk analizi, müdahale planı ve akademik geri bildirim için
-                    güvenli AI destek alanı.
-                  </p>
-                </div>
+            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+              <div className="rounded-2xl bg-white p-4">
+                <BsGraphUp className="text-blue-700" />
+                <p className="mt-3 text-sm font-bold text-slate-950">Risk analizi</p>
               </div>
-            </div>
 
-            <div className="flex-1 space-y-5 bg-slate-50 p-6">
-              {sampleMessages.map((message, index) => (
-                <div
-                  key={`${message.role}-${index}`}
-                  className={`flex ${
-                    message.role === "teacher" ? "justify-end" : "justify-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-2xl rounded-3xl border p-5 shadow-sm ${
-                      message.role === "teacher"
-                        ? "border-blue-200 bg-blue-700 text-white"
-                        : "border-slate-200 bg-white text-slate-950"
-                    }`}
-                  >
-                    <p className="text-sm leading-7">{message.text}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+              <div className="rounded-2xl bg-white p-4">
+                <BsBarChart className="text-blue-700" />
+                <p className="mt-3 text-sm font-bold text-slate-950">Not özeti</p>
+              </div>
 
-            <div className="border-t border-slate-200 p-5">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
-                <textarea
-                  rows={3}
-                  placeholder="Öğrenci desteği, müdahale planı veya sınıf özeti hakkında soru sorun"
-                  className="w-full resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-slate-400"
-                />
-
-                <div className="mt-3 flex items-center justify-between">
-                  <p className="text-xs text-slate-500">
-                    AI çıktıları öğretmen kararını desteklemek için kullanılır.
-                  </p>
-
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800"
-                  >
-                    Oluştur
-                    <BsSend />
-                  </button>
-                </div>
+              <div className="rounded-2xl bg-white p-4">
+                <BsShieldCheck className="text-blue-700" />
+                <p className="mt-3 text-sm font-bold text-slate-950">Öneriler</p>
               </div>
             </div>
           </div>
         </section>
 
-        <aside className="space-y-6">
-          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
-            <h2 className="text-xl font-bold text-blue-950">
-              Hızlı AI Araçları
-            </h2>
+        <section className="grid gap-5 lg:grid-cols-[1fr_320px]">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                <div
+                  key={`${message.role}-${index}`}
+                  className={`rounded-3xl p-5 ${
+                    message.role === "assistant"
+                      ? "bg-slate-50 text-slate-800"
+                      : "bg-blue-700 text-white"
+                  }`}
+                >
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider opacity-70">
+                    {message.role === "assistant" ? "Akademik Asistan" : "Siz"}
+                  </p>
+                  <p className="whitespace-pre-wrap text-sm leading-7">
+                    {message.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {errorMessage && (
+              <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {errorMessage}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+              <textarea
+                value={question}
+                onChange={(event) => setQuestion(event.target.value)}
+                rows={3}
+                placeholder="Örnek: Hangi öğrenciler risk altında?"
+                className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-100"
+              />
+
+              <button
+                type="submit"
+                disabled={loading || !question.trim()}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <BsSend />
+                {loading ? "Analiz ediliyor..." : "Analiz Et"}
+              </button>
+            </form>
+          </div>
+
+          <aside className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h3 className="text-xl font-bold text-slate-950">
+              Hazır Sorular
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Hızlı analiz için bu sorulardan birini seçebilirsiniz.
+            </p>
 
             <div className="mt-5 space-y-3">
-              {teacherTools.map((tool) => (
+              {exampleQuestions.map((item) => (
                 <button
-                  key={tool.title}
+                  key={item}
                   type="button"
-                  className="w-full rounded-2xl bg-white p-4 text-left shadow-sm transition hover:bg-slate-50"
+                  onClick={() => setQuestion(item)}
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-left text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                 >
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                    <BsLightbulb className="text-blue-700" />
-                    {tool.title}
-                  </div>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {tool.description}
-                  </p>
+                  {item}
                 </button>
               ))}
             </div>
-          </div>
-
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-950">
-              Etik Kullanım
-            </h2>
-
-            <div className="mt-5 space-y-4">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <BsShieldCheck />
-                  İnsan kontrolü
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  AI karar vermez; öğretmenin karar sürecine destek olur.
-                </p>
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-slate-950">
-                  <BsFileEarmarkText />
-                  Açıklanabilir çıktı
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Öneriler hangi akademik risk nedenlerine dayandığını açıkça
-                  belirtmelidir.
-                </p>
-              </div>
-            </div>
-          </div>
-        </aside>
+          </aside>
+        </section>
       </div>
     </DashboardShell>
   );
