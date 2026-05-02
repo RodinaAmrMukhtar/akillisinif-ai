@@ -1,211 +1,221 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import {
-  BsBell,
-  BsBoxArrowRight,
-  BsGrid1X2,
-  BsPersonCircle,
-} from "react-icons/bs";
+import { BsBell, BsBoxArrowRight, BsGrid1X2 } from "react-icons/bs";
 import { supabase } from "@/lib/supabaseClient";
 
-const demoUnreadNotificationCount = 3;
+function getInitials(name?: string, email?: string) {
+  const source = name?.trim() || email?.trim() || "Kullanıcı";
 
-function getDisplayName(user: User | null) {
-  if (!user) return "";
-
-  return (
-    user.user_metadata?.ad_soyad ||
-    user.user_metadata?.full_name ||
-    user.email ||
-    "Kullanıcı"
-  );
+  return source
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
 }
 
-function getRole(user: User | null) {
-  const role = user?.user_metadata?.rol;
+function normalizeRole(role?: string) {
+  if (role === "Öğrenci") return "Ogrenci";
+  if (role === "Öğretmen") return "Ogretmen";
+  return role || "";
+}
 
-  if (role === "Ogretmen") return "Öğretmen";
-  if (role === "Ogrenci") return "Öğrenci";
+function roleLabel(role?: string) {
+  const normalized = normalizeRole(role);
+
+  if (normalized === "Ogrenci") return "Öğrenci";
+  if (normalized === "Ogretmen") return "Öğretmen";
+  if (normalized === "Yonetici") return "Yönetici";
 
   return "Kullanıcı";
 }
 
-function getDashboardPath(user: User | null) {
-  const role = user?.user_metadata?.rol;
+function panelHref(role?: string) {
+  const normalized = normalizeRole(role);
 
-  if (role === "Ogrenci") return "/student/classes";
+  if (normalized === "Ogrenci") return "/student/classes";
+  if (normalized === "Ogretmen") return "/dashboard";
 
   return "/dashboard";
 }
 
-function getInitials(name: string) {
-  const parts = name.trim().split(" ").filter(Boolean);
-
-  if (parts.length === 0) return "AS";
-
-  const first = parts[0]?.charAt(0) || "";
-  const second =
-    parts.length > 1 ? parts[parts.length - 1]?.charAt(0) || "" : "";
-
-  return `${first}${second}`.toLocaleUpperCase("tr-TR");
-}
-
 export default function Navbar() {
-  const router = useRouter();
-
   const [user, setUser] = useState<User | null>(null);
+  const [notificationCount, setNotificationCount] = useState(0);
   const [loadingUser, setLoadingUser] = useState(true);
 
-  const displayName = getDisplayName(user);
-  const roleLabel = getRole(user);
-  const initials = getInitials(displayName);
-  const dashboardPath = getDashboardPath(user);
+  const displayName = useMemo(() => {
+    return (
+      user?.user_metadata?.ad_soyad ||
+      user?.user_metadata?.full_name ||
+      user?.email ||
+      ""
+    );
+  }, [user]);
+
+  const role = useMemo(() => {
+    return normalizeRole(user?.user_metadata?.rol);
+  }, [user]);
+
+  async function loadNotifications(currentUser: User | null) {
+    if (!currentUser) {
+      setNotificationCount(0);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/airtable/notifications/list?authId=${encodeURIComponent(
+          currentUser.id,
+        )}`,
+      );
+
+      const result = await response.json();
+
+      if (response.ok && result.ok) {
+        setNotificationCount(Number(result.summary?.total || 0));
+      } else {
+        setNotificationCount(0);
+      }
+    } catch {
+      setNotificationCount(0);
+    }
+  }
 
   useEffect(() => {
     async function loadUser() {
       const { data } = await supabase.auth.getUser();
 
-      setUser(data.user);
+      setUser(data.user || null);
+      await loadNotifications(data.user || null);
       setLoadingUser(false);
     }
 
     loadUser();
 
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-        setLoadingUser(false);
-      },
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setUser(session?.user || null);
+      await loadNotifications(session?.user || null);
+      setLoadingUser(false);
+    });
 
     return () => {
-      listener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    setUser(null);
-    router.push("/logout");
-    router.refresh();
-  }
-
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-6 px-6">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-700 text-lg font-bold text-white shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-700 text-sm font-bold text-white shadow-sm">
             AS
           </div>
 
           <div>
-            <p className="text-lg font-bold tracking-tight text-slate-950">
+            <p className="text-base font-bold tracking-tight text-slate-950">
               AkıllıSınıf AI
             </p>
-            <p className="hidden text-xs text-slate-500 sm:block">
-              Yapay zekâ destekli eğitim platformu
+            <p className="text-xs font-medium text-slate-500">
+              Yapay Zekâ Destekli Sınıf Performans Sistemi
             </p>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex">
-          <Link
-            href="/"
-            className="text-sm font-medium text-slate-600 transition hover:text-blue-700"
-          >
-            Ana Sayfa
-          </Link>
-
+        <div className="hidden items-center gap-2 md:flex">
           <Link
             href="/demo"
-            className="text-sm font-medium text-slate-600 transition hover:text-blue-700"
+            className="rounded-2xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
           >
-            Demo Akışı
-          </Link>
-
-          <Link
-            href="/teacher/risk-analysis"
-            className="text-sm font-medium text-slate-600 transition hover:text-blue-700"
-          >
-            AI Risk Analizi
+            Demo
           </Link>
 
           <Link
             href="/notifications"
-            className="relative inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-blue-700"
+            className="relative rounded-2xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-950"
           >
-            <BsBell />
             Bildirimler
-            {user && (
-              <span className="absolute -right-5 -top-3 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
-                {demoUnreadNotificationCount}
+            {user && notificationCount > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-blue-700 px-2 text-xs font-bold text-white">
+                {notificationCount > 99 ? "99+" : notificationCount}
               </span>
             )}
           </Link>
-        </nav>
+        </div>
 
         <div className="flex items-center gap-3">
           {loadingUser ? (
-            <div className="h-11 w-44 animate-pulse rounded-2xl bg-slate-100" />
+            <div className="h-10 w-32 animate-pulse rounded-2xl bg-slate-100" />
           ) : user ? (
-            <div className="flex items-center gap-3">
+            <>
               <Link
-                href="/profile"
-                className="hidden items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 transition hover:bg-slate-100 md:flex"
+                href="/notifications"
+                className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50"
+                aria-label="Bildirimler"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-700 text-sm font-bold text-white">
-                  {initials}
+                <BsBell />
+                {notificationCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[10px] font-bold text-white">
+                    {notificationCount > 99 ? "99+" : notificationCount}
+                  </span>
+                )}
+              </Link>
+
+              <div className="hidden items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 lg:flex">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-700 text-xs font-bold text-white">
+                  {getInitials(displayName, user.email)}
                 </div>
 
                 <div className="min-w-0">
-                  <p className="max-w-[150px] truncate text-sm font-semibold text-slate-950">
+                  <p className="max-w-[170px] truncate text-sm font-bold text-slate-950">
                     {displayName}
                   </p>
-                  <p className="text-xs text-blue-700">{roleLabel}</p>
+                  <p className="text-xs font-medium text-slate-500">
+                    {roleLabel(role)}
+                  </p>
                 </div>
-              </Link>
+              </div>
 
               <Link
-                href={dashboardPath}
-                className="inline-flex items-center gap-2 rounded-2xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                href={panelHref(role)}
+                className="hidden items-center gap-2 rounded-2xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 sm:inline-flex"
               >
                 <BsGrid1X2 />
                 Panel
               </Link>
 
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="hidden items-center gap-2 rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:inline-flex"
+              <Link
+                href="/logout"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 <BsBoxArrowRight />
                 Çıkış
-              </button>
-            </div>
+              </Link>
+            </>
           ) : (
-            <div className="flex items-center gap-3">
+            <>
               <Link
                 href="/login"
-                className="hidden rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:inline-flex"
+                className="rounded-2xl px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
               >
-                Giriş Yap
+                Giriş
               </Link>
 
               <Link
                 href="/register"
-                className="inline-flex items-center gap-2 rounded-2xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                className="rounded-2xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
               >
-                <BsPersonCircle />
                 Kayıt Ol
               </Link>
-            </div>
+            </>
           )}
         </div>
-      </div>
+      </nav>
     </header>
   );
 }
