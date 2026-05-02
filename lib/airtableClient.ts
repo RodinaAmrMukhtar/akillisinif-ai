@@ -1,4 +1,4 @@
-const AIRTABLE_API_URL = "https://api.airtable.com/v0";
+﻿const AIRTABLE_API_URL = "https://api.airtable.com/v0";
 
 function getAirtableToken() {
   const token = process.env.AIRTABLE_TOKEN;
@@ -86,4 +86,8 @@ export const AIRTABLE_TABLES = {
   davetKodlari: "Davet_Kodlari",
   sinifUyelikleri: "Sinif_Uyelikleri",
   bildirimler: "Bildirimler",
+  odevler: "Odevler",
+  odevTeslimleri: "Odev_Teslimleri",
+  notlar: "Notlar",
+  yoklamalar: "Yoklamalar",
 };
