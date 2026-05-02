@@ -94,6 +94,12 @@ const teacherMenuItems: MenuItem[] = [
     icon: BsActivity,
   },
   {
+    label: "Haftalık Raporlar",
+    href: "/teacher/weekly-reports",
+    key: "weekly-reports",
+    icon: BsClipboardData,
+  },
+  {
     label: "Mesajlar",
     href: "/teacher/chat",
     key: "teacher-chat",
