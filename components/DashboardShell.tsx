@@ -126,6 +126,13 @@ const studentMenuItems: MenuItem[] = [
     key: "student-attendance",
     icon: BsCalendarCheck,
   },
+  {
+    label: "Ödevler",
+    href: "/student/assignments",
+    key: "student-assignments",
+    icon: BsCardChecklist,
+  },
+
 
   {
     label: "Mesajlar",

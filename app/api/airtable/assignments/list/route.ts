@@ -15,6 +15,7 @@ type AirtableUserFields = {
   Eposta?: string;
   Rol?: string;
   Auth_ID?: string;
+  Okul_No?: string;
 };
 
 type AirtableClassFields = {
@@ -38,10 +39,16 @@ type AirtableAssignmentFields = {
 };
 
 type AirtableSubmissionFields = {
+  Teslim_Adi?: string;
   Odev?: string[];
   Ogrenci?: string[];
+  Sinif?: string[];
+  Teslim_Metni?: string;
+  Teslim_Tarihi?: string;
   Durum?: string;
   Puan?: number;
+  Ogretmen_Geri_Bildirimi?: string;
+  Gec_Mi?: boolean;
 };
 
 function escapeAirtableFormulaValue(value: string) {
@@ -88,21 +95,32 @@ export async function GET(request: Request) {
       );
     }
 
-    const [assignmentsResponse, classesResponse, submissionsResponse] =
-      await Promise.all([
-        airtableRequest<AirtableListResponse<AirtableAssignmentFields>>(
-          `/${encodeURIComponent(AIRTABLE_TABLES.odevler)}?maxRecords=100`,
-        ),
-        airtableRequest<AirtableListResponse<AirtableClassFields>>(
-          `/${encodeURIComponent(AIRTABLE_TABLES.siniflar)}?maxRecords=100`,
-        ),
-        airtableRequest<AirtableListResponse<AirtableSubmissionFields>>(
-          `/${encodeURIComponent(AIRTABLE_TABLES.odevTeslimleri)}?maxRecords=100`,
-        ),
-      ]);
+    const [
+      assignmentsResponse,
+      classesResponse,
+      submissionsResponse,
+      usersResponse,
+    ] = await Promise.all([
+      airtableRequest<AirtableListResponse<AirtableAssignmentFields>>(
+        `/${encodeURIComponent(AIRTABLE_TABLES.odevler)}?maxRecords=100`,
+      ),
+      airtableRequest<AirtableListResponse<AirtableClassFields>>(
+        `/${encodeURIComponent(AIRTABLE_TABLES.siniflar)}?maxRecords=100`,
+      ),
+      airtableRequest<AirtableListResponse<AirtableSubmissionFields>>(
+        `/${encodeURIComponent(AIRTABLE_TABLES.odevTeslimleri)}?maxRecords=100`,
+      ),
+      airtableRequest<AirtableListResponse<AirtableUserFields>>(
+        `/${encodeURIComponent(AIRTABLE_TABLES.kullanicilar)}?maxRecords=100`,
+      ),
+    ]);
 
     const classMap = new Map(
       classesResponse.records.map((record) => [record.id, record]),
+    );
+
+    const userMap = new Map(
+      usersResponse.records.map((record) => [record.id, record]),
     );
 
     const teacherAssignments = assignmentsResponse.records.filter((assignment) => {
@@ -144,6 +162,24 @@ export async function GET(request: Request) {
         status: assignment.fields.Durum || "Yayinda",
         submittedCount,
         gradedCount,
+        submissions: assignmentSubmissions.map((submission) => {
+          const studentId = submission.fields.Ogrenci?.[0] || "";
+          const student = userMap.get(studentId);
+
+          return {
+            id: submission.id,
+            studentId,
+            studentName: student?.fields.Ad_Soyad || "Öğrenci",
+            studentEmail: student?.fields.Eposta || "",
+            schoolNumber: student?.fields.Okul_No || "Tanımlanmadı",
+            submissionText: submission.fields.Teslim_Metni || "",
+            submittedAt: submission.fields.Teslim_Tarihi || "",
+            status: submission.fields.Durum || "Teslim Edildi",
+            score: submission.fields.Puan ?? null,
+            feedback: submission.fields.Ogretmen_Geri_Bildirimi || "",
+            late: submission.fields.Gec_Mi ?? false,
+          };
+        }),
       };
     });
 

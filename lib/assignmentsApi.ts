@@ -1,4 +1,18 @@
-﻿export type TeacherAssignment = {
+﻿export type TeacherAssignmentSubmission = {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  schoolNumber: string;
+  submissionText: string;
+  submittedAt: string;
+  status: string;
+  score: number | null;
+  feedback: string;
+  late: boolean;
+};
+
+export type TeacherAssignment = {
   id: string;
   title: string;
   classId: string;
@@ -13,6 +27,7 @@
   status: string;
   submittedCount: number;
   gradedCount: number;
+  submissions: TeacherAssignmentSubmission[];
 };
 
 export type StudentAssignment = {
@@ -84,6 +99,31 @@ export async function listTeacherAssignments(teacherAuthId: string) {
   }
 
   return result.assignments as TeacherAssignment[];
+}
+
+export async function gradeAssignmentSubmission(input: {
+  teacherAuthId: string;
+  submissionId: string;
+  score: number;
+  feedback: string;
+}) {
+  const response = await fetch("/api/airtable/assignments/grade", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(input),
+  });
+
+  const result = await response.json();
+
+  if (!response.ok || !result.ok) {
+    throw new Error(
+      result?.error || result?.message || "Teslim değerlendirilemedi.",
+    );
+  }
+
+  return result;
 }
 
 export async function listStudentAssignments(studentAuthId: string) {
