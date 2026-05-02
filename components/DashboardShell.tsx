@@ -132,6 +132,13 @@ const studentMenuItems: MenuItem[] = [
     key: "student-assignments",
     icon: BsCardChecklist,
   },
+  {
+    label: "Notlarım",
+    href: "/student/grades",
+    key: "student-grades",
+    icon: BsClipboardData,
+  },
+
 
 
   {
