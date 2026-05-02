@@ -90,4 +90,6 @@ export const AIRTABLE_TABLES = {
   odevTeslimleri: "Odev_Teslimleri",
   notlar: "Notlar",
   yoklamalar: "Yoklamalar",
+  yoklamaOturumlari: "Yoklama_Oturumlari",
 };
+
