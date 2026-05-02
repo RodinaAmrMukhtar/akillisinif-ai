@@ -121,6 +121,13 @@ const studentMenuItems: MenuItem[] = [
     icon: BsClipboardData,
   },
   {
+    label: "Yoklama",
+    href: "/student/attendance",
+    key: "student-attendance",
+    icon: BsCalendarCheck,
+  },
+
+  {
     label: "Mesajlar",
     href: "/student/chat",
     key: "student-chat",
