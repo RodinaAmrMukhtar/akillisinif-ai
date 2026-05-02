@@ -12,6 +12,9 @@
   metrics: {
     gradeAverage: number | null;
     gradeRecordCount: number;
+    formulaMode: "weighted" | "simple";
+    formulaWeightTotal: number;
+    weightedGradeCount: number;
     assignmentCount: number;
     submittedAssignmentCount: number;
     missingAssignmentCount: number;

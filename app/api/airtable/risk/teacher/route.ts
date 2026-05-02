@@ -57,6 +57,7 @@ type AirtableGradeFields = {
   Not_Turu?: string;
   Puan?: number;
   Maksimum_Puan?: number;
+  Agirlik?: number;
   Tarih?: string;
 };
 
@@ -99,6 +100,72 @@ function clamp(value: number, min: number, max: number) {
   return Math.max(min, Math.min(max, value));
 }
 
+function normalizeWeight(raw?: number) {
+  if (typeof raw !== "number") return 0;
+  if (raw <= 1) return Math.round(raw * 100);
+  return Math.round(raw);
+}
+
+function gradePercentage(grade: AirtableRecord<AirtableGradeFields>) {
+  const score = grade.fields.Puan;
+  const maxPoints = grade.fields.Maksimum_Puan;
+
+  if (typeof score !== "number") return null;
+  if (typeof maxPoints !== "number" || maxPoints <= 0) return null;
+
+  return Math.round((score / maxPoints) * 100);
+}
+
+function calculateFormulaGrade(grades: AirtableRecord<AirtableGradeFields>[]) {
+  const gradePercentages = grades
+    .map((grade) => gradePercentage(grade))
+    .filter((value): value is number => value !== null);
+
+  const weightedGrades = grades
+    .map((grade) => {
+      const percentage = gradePercentage(grade);
+      const weight = normalizeWeight(grade.fields.Agirlik);
+
+      return {
+        percentage,
+        weight,
+        type: grade.fields.Not_Turu || "Not",
+      };
+    })
+    .filter(
+      (grade): grade is { percentage: number; weight: number; type: string } =>
+        grade.percentage !== null && grade.weight > 0,
+    );
+
+  if (weightedGrades.length > 0) {
+    const totalWeight = weightedGrades.reduce(
+      (sum, grade) => sum + grade.weight,
+      0,
+    );
+
+    const weightedTotal = weightedGrades.reduce((sum, grade) => {
+      return sum + grade.percentage * grade.weight;
+    }, 0);
+
+    return {
+      average:
+        totalWeight > 0 ? Math.round(weightedTotal / totalWeight) : null,
+      formulaMode: "weighted",
+      formulaWeightTotal: totalWeight,
+      weightedGradeCount: weightedGrades.length,
+      gradeRecordCount: grades.length,
+    };
+  }
+
+  return {
+    average: average(gradePercentages),
+    formulaMode: "simple",
+    formulaWeightTotal: 0,
+    weightedGradeCount: 0,
+    gradeRecordCount: grades.length,
+  };
+}
+
 function getRiskLevel(score: number) {
   if (score >= 70) return "Kritik";
   if (score >= 50) return "Yüksek";
@@ -112,14 +179,18 @@ function getRecommendation(level: string) {
   }
 
   if (level === "Yüksek") {
-    return "Öğrencinin ödev, yoklama ve not durumu yakından izlenmeli; kısa vadeli destek planı hazırlanmalıdır.";
+    return "Öğrencinin ödev, yoklama ve sınav performansı yakından izlenmeli; kısa vadeli destek planı hazırlanmalıdır.";
   }
 
   if (level === "Orta") {
-    return "Öğrencinin performansı takip edilmeli, eksik ödev ve devamsızlık sinyalleri düzenli kontrol edilmelidir.";
+    return "Öğrencinin performansı takip edilmeli, eksik ödev, düşük not ve devamsızlık sinyalleri düzenli kontrol edilmelidir.";
   }
 
   return "Belirgin risk sinyali düşük. Mevcut akademik takip sürdürülebilir.";
+}
+
+function isStudentRole(role?: string) {
+  return role === "Ogrenci" || role === "Öğrenci";
 }
 
 async function findTeacherByAuthId(authId: string) {
@@ -218,7 +289,7 @@ export async function GET(request: Request) {
       return (
         linkedUsers.length > 0 &&
         linkedClasses.some((classId) => teacherClassIds.includes(classId)) &&
-        membership.fields.Uyelik_Rolu === "Ogrenci" &&
+        isStudentRole(membership.fields.Uyelik_Rolu) &&
         membership.fields.Durum === "Aktif"
       );
     });
@@ -313,21 +384,8 @@ export async function GET(request: Request) {
         );
       });
 
-      const gradePercentages = studentGrades
-        .filter(
-          (grade) =>
-            typeof grade.fields.Puan === "number" &&
-            typeof grade.fields.Maksimum_Puan === "number" &&
-            Number(grade.fields.Maksimum_Puan) > 0,
-        )
-        .map((grade) =>
-          Math.round(
-            ((grade.fields.Puan || 0) / (grade.fields.Maksimum_Puan || 100)) *
-              100,
-          ),
-        );
-
-      const gradeAverage = average(gradePercentages);
+      const formulaGrade = calculateFormulaGrade(studentGrades);
+      const gradeAverage = formulaGrade.average;
 
       const studentAttendanceSessions = attendanceSessionsResponse.records.filter(
         (session) => {
@@ -336,7 +394,8 @@ export async function GET(request: Request) {
 
           return (
             linkedClasses.some((classId) => studentClassIds.includes(classId)) &&
-            (linkedTeachers.length === 0 || linkedTeachers.includes(teacher.id))
+            (linkedTeachers.length === 0 || linkedTeachers.includes(teacher.id)) &&
+            session.fields.Durum !== "Iptal"
           );
         },
       );
@@ -376,22 +435,22 @@ export async function GET(request: Request) {
       let riskScore = 0;
 
       if (gradeAverage !== null) {
-        if (gradeAverage < 50) riskScore += 35;
-        else if (gradeAverage < 60) riskScore += 28;
-        else if (gradeAverage < 70) riskScore += 18;
-        else if (gradeAverage < 80) riskScore += 8;
+        if (gradeAverage < 50) riskScore += 40;
+        else if (gradeAverage < 60) riskScore += 32;
+        else if (gradeAverage < 70) riskScore += 22;
+        else if (gradeAverage < 80) riskScore += 10;
       } else {
-        riskScore += 5;
+        riskScore += 8;
       }
 
       if (submissionRate !== null) {
-        riskScore += (100 - submissionRate) * 0.3;
+        riskScore += (100 - submissionRate) * 0.25;
       } else {
         riskScore += 5;
       }
 
       if (attendanceRate !== null) {
-        riskScore += (100 - attendanceRate) * 0.3;
+        riskScore += (100 - attendanceRate) * 0.25;
       } else {
         riskScore += 5;
       }
@@ -410,6 +469,22 @@ export async function GET(request: Request) {
       const riskLevel = getRiskLevel(finalRiskScore);
 
       const signals: string[] = [];
+
+      if (formulaGrade.formulaMode === "weighted") {
+        signals.push(
+          `Not ortalaması öğretmen ağırlık formülüne göre hesaplandı. Formül ağırlığı: ${formulaGrade.formulaWeightTotal}%.`,
+        );
+
+        if (formulaGrade.formulaWeightTotal !== 100) {
+          signals.push(
+            "Ağırlık toplamı 100 değil; sistem mevcut ağırlıkları normalize ederek risk hesabı yaptı.",
+          );
+        }
+      } else if (studentGrades.length > 0) {
+        signals.push(
+          "Ağırlıklı formül bulunmadı; not ortalaması basit ortalama ile hesaplandı.",
+        );
+      }
 
       if (gradeAverage !== null && gradeAverage < 60) {
         signals.push("Not ortalaması kritik eşiğin altında.");
@@ -459,6 +534,9 @@ export async function GET(request: Request) {
         metrics: {
           gradeAverage,
           gradeRecordCount: studentGrades.length,
+          formulaMode: formulaGrade.formulaMode,
+          formulaWeightTotal: formulaGrade.formulaWeightTotal,
+          weightedGradeCount: formulaGrade.weightedGradeCount,
           assignmentCount: studentAssignments.length,
           submittedAssignmentCount: submittedCount,
           missingAssignmentCount: missingAssignments,
