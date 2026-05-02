@@ -72,6 +72,34 @@ async function listAll(tableName: string): Promise<AirtableRecord[]> {
   return records;
 }
 
+async function patchRecord(tableName: string, recordId: string, fields: Record<string, unknown>) {
+  const token = process.env.AIRTABLE_TOKEN?.trim();
+  const baseId = process.env.AIRTABLE_BASE_ID?.trim();
+
+  if (!token) throw new Error("AIRTABLE_TOKEN eksik.");
+  if (!baseId) throw new Error("AIRTABLE_BASE_ID eksik.");
+
+  const response = await fetch(
+    `${AIRTABLE_API_URL}/${baseId}/${encodeURIComponent(tableName)}/${recordId}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fields }),
+      cache: "no-store",
+    },
+  );
+
+  if (!response.ok) {
+    const details = await response.text();
+    throw new Error(`Airtable güncelleme hatası. Durum: ${response.status}. Detay: ${details}`);
+  }
+
+  return response.json();
+}
+
 function findUser(users: AirtableRecord[], authId: string, email: string, name: string) {
   return users.find((user) => {
     const airtableAuthId = getString(user.fields.Auth_ID);
@@ -86,88 +114,71 @@ function findUser(users: AirtableRecord[], authId: string, email: string, name: 
   });
 }
 
-function recordDate(record: AirtableRecord) {
-  return (
-    record.fields.Olusturma_Tarihi ||
-    record.createdTime ||
-    record.fields.Okunma_Tarihi ||
-    ""
-  );
-}
-
-export async function GET(request: Request) {
+export async function PATCH(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
+    const body = await request.json();
 
-    const authId = getString(searchParams.get("authId"));
-    const email = getString(searchParams.get("email"));
-    const name = getString(searchParams.get("name"));
+    const authId = getString(body.authId);
+    const email = getString(body.email);
+    const name = getString(body.name);
+    const notificationId = getString(body.notificationId);
+    const markAll = Boolean(body.markAll);
 
-    const [users, notifications, classes] = await Promise.all([
+    const [users, notifications] = await Promise.all([
       listAll("Kullanicilar"),
       listAll("Bildirimler"),
-      listAll("Siniflar"),
     ]);
 
     const user = findUser(users, authId, email, name);
 
     if (!user) {
-      return NextResponse.json({
-        ok: true,
-        user: null,
-        unreadCount: 0,
-        notifications: [],
-      });
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Kullanıcı Airtable içinde bulunamadı.",
+        },
+        { status: 404 },
+      );
     }
 
-    const classMap = new Map(
-      classes.map((classRecord) => [
-        classRecord.id,
-        getString(classRecord.fields.Sinif_Adi) ||
-          getString(classRecord.fields.Ders_Adi) ||
-          "Sınıf",
-      ]),
+    const userNotifications = notifications.filter((notification) =>
+      asLinks(notification.fields.Alici).includes(user.id),
     );
 
-    const userNotifications = notifications
-      .filter((notification) => asLinks(notification.fields.Alici).includes(user.id))
-      .sort((a, b) => getString(recordDate(b)).localeCompare(getString(recordDate(a))));
+    const targets = markAll
+      ? userNotifications.filter((notification) => !Boolean(notification.fields.Okundu_Mu))
+      : userNotifications.filter((notification) => notification.id === notificationId);
 
-    const mappedNotifications = userNotifications.map((notification) => {
-      const classId = asLinks(notification.fields.Sinif)[0] || "";
-      const isRead = Boolean(notification.fields.Okundu_Mu);
+    if (!markAll && targets.length === 0) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: "Bu bildirim bu kullanıcıya ait değil veya bulunamadı.",
+        },
+        { status: 404 },
+      );
+    }
 
-      return {
-        id: notification.id,
-        title: getString(notification.fields.Bildirim_Basligi),
-        message: getString(notification.fields.Mesaj),
-        type: getString(notification.fields.Bildirim_Turu),
-        importance: getString(notification.fields.Onem_Derecesi),
-        channel: getString(notification.fields.Kanal),
-        classId,
-        className: classMap.get(classId) || "Genel",
-        isRead,
-        sent: Boolean(notification.fields.Gonderildi_Mi),
-        createdAt: getString(recordDate(notification)),
-        readAt: getString(notification.fields.Okunma_Tarihi),
-      };
-    });
+    const today = new Date().toISOString().slice(0, 10);
+
+    await Promise.all(
+      targets.map((notification) =>
+        patchRecord("Bildirimler", notification.id, {
+          Okundu_Mu: true,
+          Okunma_Tarihi: today,
+        }),
+      ),
+    );
 
     return NextResponse.json({
       ok: true,
-      user: {
-        id: user.id,
-        name: getString(user.fields.Ad_Soyad),
-        email: getString(user.fields.Eposta),
-      },
-      unreadCount: mappedNotifications.filter((notification) => !notification.isRead).length,
-      notifications: mappedNotifications,
+      updatedCount: targets.length,
     });
   } catch (error) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Bildirimler yüklenemedi.",
+        message: "Bildirim okundu olarak işaretlenemedi.",
         error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },

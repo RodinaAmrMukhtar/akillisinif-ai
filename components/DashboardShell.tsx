@@ -42,8 +42,6 @@ type MenuItem = {
 
 type UserRole = "Ogretmen" | "Ogrenci" | "Unknown";
 
-const demoUnreadNotificationCount = 3;
-
 const teacherMenuItems: MenuItem[] = [
   {
     label: "Genel Bakış",
@@ -261,10 +259,12 @@ function MenuSection({
   title,
   items,
   activePage,
+  unreadNotificationCount = 0,
 }: {
   title: string;
   items: MenuItem[];
   activePage: string;
+  unreadNotificationCount?: number;
 }) {
   return (
     <div>
@@ -289,9 +289,9 @@ function MenuSection({
             >
               <Icon className="shrink-0 text-base" />
               <span>{item.label}</span>
-              {item.key === "notifications" && (
+              {item.key === "notifications" && unreadNotificationCount > 0 && (
                 <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
-                  {demoUnreadNotificationCount}
+                  {unreadNotificationCount}
                 </span>
               )}
             </Link>
@@ -322,6 +322,7 @@ export default function DashboardShell({
   const initials = getInitials(displayName);
   const email = user?.email || "demo@akillisinif.ai";
   const mainMenu = getMainMenu(role);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   useEffect(() => {
     async function loadUser() {
@@ -449,12 +450,14 @@ export default function DashboardShell({
               title={mainMenu.title}
               items={mainMenu.items}
               activePage={activePage}
+              unreadNotificationCount={0}
             />
 
             <MenuSection
               title="Sistem"
               items={systemMenuItems}
               activePage={activePage}
+              unreadNotificationCount={unreadNotificationCount}
             />
           </div>
         </div>
@@ -497,9 +500,11 @@ export default function DashboardShell({
                 className="relative rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100"
               >
                 Bildirim Merkezi
-                <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
-                  {demoUnreadNotificationCount}
-                </span>
+                {unreadNotificationCount > 0 ? (
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-700 px-1.5 text-[11px] font-bold text-white">
+                    {unreadNotificationCount}
+                  </span>
+                ) : null}
               </Link>
 
               <button
