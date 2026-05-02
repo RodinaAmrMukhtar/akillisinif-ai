@@ -1,5 +1,7 @@
 ﻿"use client";
 
+import { Suspense } from "react";
+
 import { FormEvent, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -17,7 +19,7 @@ import {
 } from "@/lib/attendanceApi";
 import { supabase } from "@/lib/supabaseClient";
 
-export default function StudentAttendancePage() {
+function StudentAttendancePageContent() {
   const searchParams = useSearchParams();
 
   const [user, setUser] = useState<User | null>(null);
@@ -257,5 +259,22 @@ export default function StudentAttendancePage() {
         </aside>
       </div>
     </DashboardShell>
+  );
+}
+
+export default function StudentAttendancePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 p-8">
+          <div className="mx-auto max-w-5xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+            <div className="h-8 w-64 animate-pulse rounded bg-slate-100" />
+            <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100" />
+          </div>
+        </div>
+      }
+    >
+      <StudentAttendancePageContent />
+    </Suspense>
   );
 }
