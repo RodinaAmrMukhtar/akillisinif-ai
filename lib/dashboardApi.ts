@@ -1,23 +1,47 @@
-﻿export type TeacherDashboardClassSummary = {
+﻿export type TeacherDashboardClass = {
   id: string;
   className: string;
   courseName: string;
-  academicYear: string;
-  term: string;
   status: string;
-  classCode: string;
   studentCount: number;
-  pendingJoinRequestCount: number;
+  pendingCount: number;
+  assignmentCount: number;
+  submissionCount: number;
   riskyStudentCount: number;
 };
 
+export type TeacherDashboardActivity = {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  date: string;
+  href: string;
+};
+
 export type TeacherDashboardData = {
-  activeClassCount: number;
-  totalStudentCount: number;
-  pendingJoinRequestCount: number;
-  highRiskStudentCount: number;
-  classSummaries: TeacherDashboardClassSummary[];
-  riskModuleStatus: string;
+  teacher: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  summary: {
+    activeClassCount: number;
+    totalStudentCount: number;
+    pendingJoinRequestCount: number;
+    assignmentCount: number;
+    submissionCount: number;
+    gradedSubmissionCount: number;
+    gradeRecordCount: number;
+    attendanceSessionCount: number;
+    attendanceRecordCount: number;
+    riskyStudentCount: number;
+    averageGrade: number | null;
+    averageSubmissionRate: number | null;
+    averageAttendanceRate: number | null;
+  };
+  classes: TeacherDashboardClass[];
+  recentActivities: TeacherDashboardActivity[];
 };
 
 export async function getTeacherDashboard(teacherAuthId: string) {
@@ -31,11 +55,14 @@ export async function getTeacherDashboard(teacherAuthId: string) {
 
   if (!response.ok || !result.ok) {
     throw new Error(
-      result?.error ||
-        result?.message ||
-        "Öğretmen dashboard verisi alınamadı.",
+      result?.error || result?.message || "Öğretmen panel verileri yüklenemedi.",
     );
   }
 
-  return result.dashboard as TeacherDashboardData;
+  return {
+    teacher: result.teacher,
+    summary: result.summary,
+    classes: result.classes,
+    recentActivities: result.recentActivities,
+  } as TeacherDashboardData;
 }

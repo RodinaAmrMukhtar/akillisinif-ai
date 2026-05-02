@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { User } from "@supabase/supabase-js";
+import type { ElementType } from "react";
 import {
-  BsActivity,
   BsArrowRight,
-  BsCollection,
-  BsExclamationTriangle,
+  BsBarChart,
+  BsCalendarCheck,
+  BsCardChecklist,
+  BsClipboardData,
+  BsGraphUp,
   BsPeople,
-  BsPersonCheck,
-  BsPlusSquare,
-  BsShieldCheck,
+  BsPlusCircle,
 } from "react-icons/bs";
 import DashboardShell from "@/components/DashboardShell";
 import EmptyState from "@/components/EmptyState";
@@ -21,105 +21,103 @@ import {
 } from "@/lib/dashboardApi";
 import { supabase } from "@/lib/supabaseClient";
 
-type StatCardProps = {
-  title: string;
-  value: number;
-  description: string;
-  icon: React.ElementType;
-  tone?: "blue" | "emerald" | "amber" | "red";
-};
+function metricValue(value: number | null, suffix = "%") {
+  if (value === null) return "Veri yok";
+  return `${value}${suffix}`;
+}
 
 function StatCard({
   title,
   value,
   description,
   icon: Icon,
-  tone = "blue",
-}: StatCardProps) {
-  const toneClasses = {
-    blue: "bg-blue-50 text-blue-700 border-blue-100",
-    emerald: "bg-emerald-50 text-emerald-700 border-emerald-100",
-    amber: "bg-amber-50 text-amber-700 border-amber-100",
-    red: "bg-red-50 text-red-700 border-red-100",
-  };
-
-  return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  href,
+}: {
+  title: string;
+  value: string | number;
+  description: string;
+  icon: ElementType;
+  href?: string;
+}) {
+  const card = (
+    <div className="h-full rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-blue-200 hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold text-slate-500">{title}</p>
           <p className="mt-4 text-4xl font-bold tracking-tight text-slate-950">
             {value}
           </p>
+          <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
         </div>
 
-        <div
-          className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${toneClasses[tone]}`}
-        >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
           <Icon className="text-xl" />
         </div>
       </div>
-
-      <p className="mt-4 text-sm leading-6 text-slate-600">{description}</p>
     </div>
+  );
+
+  if (!href) return card;
+
+  return (
+    <Link href={href} className="block h-full">
+      {card}
+    </Link>
   );
 }
 
-export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null);
+export default function TeacherDashboardPage() {
   const [dashboard, setDashboard] = useState<TeacherDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    async function loadDashboard() {
-      setLoading(true);
-      setErrorMessage("");
+  async function loadDashboard() {
+    setLoading(true);
+    setErrorMessage("");
 
-      const { data } = await supabase.auth.getUser();
+    const { data } = await supabase.auth.getUser();
 
-      if (!data.user) {
-        setLoading(false);
-        return;
-      }
-
-      setUser(data.user);
-
-      try {
-        const dashboardData = await getTeacherDashboard(data.user.id);
-        setDashboard(dashboardData);
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error
-            ? error.message
-            : "Dashboard verisi alınamadı.",
-        );
-      }
-
+    if (!data.user) {
       setLoading(false);
+      return;
     }
 
+    try {
+      const result = await getTeacherDashboard(data.user.id);
+      setDashboard(result);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Öğretmen panel verileri yüklenemedi.",
+      );
+    }
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
     loadDashboard();
   }, []);
 
   return (
     <DashboardShell
-      title="Genel Bakış"
-      description="Bu panel artık gerçek Airtable verilerini kullanır: sınıflar, aktif öğrenciler ve bekleyen katılım istekleri canlı kayıtlardan hesaplanır."
+      title="Öğretmen Paneli"
+      description="AkıllıSınıf AI için gerçek Airtable verilerine bağlı akademik yönetim özeti."
       activePage="dashboard"
     >
       {loading && (
-        <div className="grid gap-5 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((item) => (
-            <div
-              key={item}
-              className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-            >
-              <div className="h-5 w-32 animate-pulse rounded bg-slate-100" />
-              <div className="mt-5 h-10 w-20 animate-pulse rounded bg-slate-100" />
-              <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100" />
-            </div>
-          ))}
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="h-8 w-56 animate-pulse rounded bg-slate-100" />
+          <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100" />
+          <div className="mt-8 grid gap-5 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-36 animate-pulse rounded-3xl bg-slate-100"
+              />
+            ))}
+          </div>
         </div>
       )}
 
@@ -129,101 +127,180 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!loading && !errorMessage && dashboard && (
+      {!loading && dashboard && (
         <div className="space-y-8">
-          <div className="grid gap-5 lg:grid-cols-4">
+          <section className="rounded-3xl border border-blue-100 bg-blue-50 p-8 shadow-sm">
+            <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <p className="text-sm font-semibold text-blue-700">
+                  Canlı Akademik Yönetim Paneli
+                </p>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight text-blue-950">
+                  Hoş geldiniz, {dashboard.teacher.name}
+                </h2>
+                <p className="mt-3 max-w-3xl text-sm leading-7 text-blue-900">
+                  Bu panel sınıf, ödev, yoklama, not ve risk analizini tek ekranda
+                  birleştirir. Tüm sayılar Airtable kayıtlarından hesaplanır.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={loadDashboard}
+                className="rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-blue-700 shadow-sm transition hover:bg-blue-100"
+              >
+                Verileri Yenile
+              </button>
+            </div>
+          </section>
+
+          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             <StatCard
               title="Aktif Sınıf"
-              value={dashboard.activeClassCount}
-              description="Airtable Siniflar tablosunda size bağlı aktif sınıflar."
-              icon={BsCollection}
-              tone="blue"
+              value={dashboard.summary.activeClassCount}
+              description="Öğretmen hesabınıza bağlı sınıflar"
+              icon={BsPeople}
+              href="/teacher/classes"
             />
 
             <StatCard
               title="Toplam Öğrenci"
-              value={dashboard.totalStudentCount}
-              description="Sinif_Uyelikleri tablosundaki aktif öğrenci kayıtlarından hesaplanır."
+              value={dashboard.summary.totalStudentCount}
+              description="Aktif üyeliklerdeki benzersiz öğrenciler"
               icon={BsPeople}
-              tone="emerald"
+              href="/teacher/classes"
             />
 
             <StatCard
-              title="Bekleyen Katılım"
-              value={dashboard.pendingJoinRequestCount}
-              description="Öğretmen onayı bekleyen gerçek sınıf katılım istekleri."
-              icon={BsPersonCheck}
-              tone="amber"
+              title="Onay Bekleyen"
+              value={dashboard.summary.pendingJoinRequestCount}
+              description="Sınıfa katılım için bekleyen istekler"
+              icon={BsClipboardData}
+              href="/teacher/join-requests"
             />
 
             <StatCard
-              title="Yüksek Risk"
-              value={dashboard.highRiskStudentCount}
-              description="Risk analizi modülü bağlandığında Risk_Sinyalleri verisiyle hesaplanacaktır."
-              icon={BsActivity}
-              tone="red"
+              title="Riskli Öğrenci"
+              value={dashboard.summary.riskyStudentCount}
+              description="Yüksek veya kritik risk sinyali taşıyan öğrenciler"
+              icon={BsGraphUp}
+              href="/teacher/risk-analysis"
             />
-          </div>
+          </section>
 
-          <div className="rounded-3xl border border-emerald-100 bg-emerald-50 p-6">
-            <div className="flex gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-emerald-700">
-                <BsShieldCheck className="text-xl" />
+          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              title="Yayınlanan Ödev"
+              value={dashboard.summary.assignmentCount}
+              description="Airtable Odevler tablosundaki öğretmen ödevleri"
+              icon={BsCardChecklist}
+              href="/teacher/assignments"
+            />
+
+            <StatCard
+              title="Teslimler"
+              value={dashboard.summary.submissionCount}
+              description={`${dashboard.summary.gradedSubmissionCount} teslim değerlendirildi`}
+              icon={BsClipboardData}
+              href="/teacher/assignments"
+            />
+
+            <StatCard
+              title="Yoklama Oturumu"
+              value={dashboard.summary.attendanceSessionCount}
+              description={`${dashboard.summary.attendanceRecordCount} yoklama kaydı alındı`}
+              icon={BsCalendarCheck}
+              href="/teacher/attendance"
+            />
+
+            <StatCard
+              title="Not Kaydı"
+              value={dashboard.summary.gradeRecordCount}
+              description="Ödev, vize, final ve laboratuvar kayıtları"
+              icon={BsBarChart}
+              href="/teacher/grades"
+            />
+          </section>
+
+          <section className="grid gap-5 lg:grid-cols-3">
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 text-slate-500">
+                <BsBarChart />
+                <p className="text-sm font-semibold">Ortalama Not</p>
               </div>
+              <p className="mt-4 text-4xl font-bold text-slate-950">
+                {metricValue(dashboard.summary.averageGrade)}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Ağırlıklı formül varsa ona göre hesaplanır.
+              </p>
+            </div>
 
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 text-slate-500">
+                <BsCardChecklist />
+                <p className="text-sm font-semibold">Ödev Teslim Oranı</p>
+              </div>
+              <p className="mt-4 text-4xl font-bold text-slate-950">
+                {metricValue(dashboard.summary.averageSubmissionRate)}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Öğrenci bazlı teslim oranlarının ortalaması.
+              </p>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-3 text-slate-500">
+                <BsCalendarCheck />
+                <p className="text-sm font-semibold">Yoklama Katılımı</p>
+              </div>
+              <p className="mt-4 text-4xl font-bold text-slate-950">
+                {metricValue(dashboard.summary.averageAttendanceRate)}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Yoklama oturumlarına katılım ortalaması.
+              </p>
+            </div>
+          </section>
+
+          <section>
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <h2 className="text-lg font-bold text-emerald-950">
-                  Gerçek veri bağlantısı aktif
+                <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+                  Sınıf Özeti
                 </h2>
-                <p className="mt-2 text-sm leading-7 text-emerald-900">
-                  Bu ekrandaki sınıf, öğrenci ve katılım isteği sayıları mock
-                  veri değildir. Supabase oturumundaki öğretmen Auth_ID bilgisi
-                  Airtable Kullanicilar tablosuyla eşleştirilir ve ilişkili
-                  Siniflar ile Sinif_Uyelikleri kayıtlarından hesaplanır.
+                <p className="mt-2 text-sm text-slate-600">
+                  Her sınıf için öğrenci, ödev, teslim ve risk görünümü.
                 </p>
               </div>
+
+              <Link
+                href="/teacher/classes/new"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+              >
+                <BsPlusCircle />
+                Yeni Sınıf
+              </Link>
             </div>
-          </div>
 
-          {dashboard.classSummaries.length === 0 ? (
-            <EmptyState
-              icon={BsCollection}
-              title="Henüz gerçek sınıf kaydı yok"
-              description="Yeni sınıf oluşturarak Airtable Siniflar tablosuna kayıt ekleyebilir, ardından öğrencilerin sınıf koduyla katılım isteği göndermesini sağlayabilirsiniz."
-              primaryActionLabel="Yeni Sınıf Oluştur"
-              primaryActionHref="/teacher/classes/new"
-            />
-          ) : (
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold tracking-tight text-slate-950">
-                    Sınıflarım
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Aşağıdaki liste Airtable üzerinden gerçek zamanlı olarak
-                    getirilen sınıf özetleridir.
-                  </p>
-                </div>
-
-                <Link
-                  href="/teacher/classes/new"
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
-                >
-                  <BsPlusSquare />
-                  Yeni Sınıf
-                </Link>
-              </div>
-
+            {dashboard.classes.length === 0 ? (
+              <EmptyState
+                icon={BsPeople}
+                title="Henüz sınıf bulunmuyor"
+                description="İlk sınıfınızı oluşturduğunuzda öğretmen paneli gerçek verilerle dolmaya başlayacaktır."
+                primaryActionLabel="Yeni Sınıf Oluştur"
+                primaryActionHref="/teacher/classes/new"
+              />
+            ) : (
               <div className="grid gap-5 lg:grid-cols-2">
-                {dashboard.classSummaries.map((classItem) => (
+                {dashboard.classes.map((classItem) => (
                   <article
                     key={classItem.id}
-                    className="rounded-3xl border border-slate-200 bg-slate-50 p-5"
+                    className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-700">
+                        <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
                           {classItem.status}
                         </span>
 
@@ -236,13 +313,17 @@ export default function DashboardPage() {
                         </p>
                       </div>
 
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-700">
-                        <BsCollection className="text-xl" />
-                      </div>
+                      <Link
+                        href={`/teacher/classes/${classItem.id}`}
+                        className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      >
+                        Aç
+                        <BsArrowRight />
+                      </Link>
                     </div>
 
-                    <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-2xl bg-white p-4">
+                    <div className="mt-6 grid gap-3 sm:grid-cols-5">
+                      <div className="rounded-2xl bg-slate-50 p-4">
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                           Öğrenci
                         </p>
@@ -251,61 +332,98 @@ export default function DashboardPage() {
                         </p>
                       </div>
 
-                      <div className="rounded-2xl bg-white p-4">
+                      <div className="rounded-2xl bg-slate-50 p-4">
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                           Bekleyen
                         </p>
                         <p className="mt-2 text-xl font-bold text-slate-950">
-                          {classItem.pendingJoinRequestCount}
+                          {classItem.pendingCount}
                         </p>
                       </div>
 
-                      <div className="rounded-2xl bg-white p-4">
+                      <div className="rounded-2xl bg-slate-50 p-4">
                         <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                          Kod
+                          Ödev
                         </p>
-                        <p className="mt-2 font-mono text-sm font-bold text-blue-700">
-                          {classItem.classCode || "Yok"}
+                        <p className="mt-2 text-xl font-bold text-slate-950">
+                          {classItem.assignmentCount}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                          Teslim
+                        </p>
+                        <p className="mt-2 text-xl font-bold text-slate-950">
+                          {classItem.submissionCount}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-slate-50 p-4">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                          Risk
+                        </p>
+                        <p className="mt-2 text-xl font-bold text-red-700">
+                          {classItem.riskyStudentCount}
                         </p>
                       </div>
                     </div>
-
-                    <Link
-                      href={`/teacher/classes/${classItem.id}`}
-                      className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 transition hover:text-blue-800"
-                    >
-                      Sınıf Detayına Git
-                      <BsArrowRight />
-                    </Link>
                   </article>
                 ))}
               </div>
-            </section>
-          )}
+            )}
+          </section>
 
-          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
-            <div className="flex gap-4">
-              <BsExclamationTriangle className="mt-1 shrink-0 text-amber-700" />
-              <p className="text-sm leading-7 text-amber-900">
-                Risk göstergesi şu anda bilinçli olarak 0 gösterilir. Çünkü
-                Notlar, Yoklamalar, Odev_Teslimleri ve Risk_Sinyalleri gerçek
-                hesaplama modülü henüz bağlanmadı. Bir sonraki veri aşamasında
-                bu alan da tamamen gerçek hesaplamaya bağlanacak.
-              </p>
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight text-slate-950">
+                  Son Akademik Hareketler
+                </h2>
+                <p className="mt-2 text-sm text-slate-600">
+                  Ödev, teslim, katılım isteği ve yoklama hareketleri.
+                </p>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
 
-      {!loading && !errorMessage && !dashboard && !user && (
-        <EmptyState
-          icon={BsCollection}
-          title="Oturum bulunamadı"
-          description="Dashboard verilerini görüntülemek için öğretmen hesabınızla giriş yapmanız gerekir."
-          primaryActionLabel="Giriş Yap"
-          primaryActionHref="/login"
-        />
+            {dashboard.recentActivities.length === 0 ? (
+              <div className="rounded-2xl bg-slate-50 p-5 text-sm leading-7 text-slate-600">
+                Henüz akademik hareket bulunmuyor.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {dashboard.recentActivities.map((activity) => (
+                  <Link
+                    key={activity.id}
+                    href={activity.href}
+                    className="flex flex-col gap-3 rounded-2xl border border-slate-200 p-4 transition hover:border-blue-200 hover:bg-blue-50 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {activity.type}
+                      </span>
+
+                      <h3 className="mt-3 text-sm font-bold text-slate-950">
+                        {activity.title}
+                      </h3>
+
+                      <p className="mt-1 text-sm text-slate-600">
+                        {activity.description}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-sm font-semibold text-blue-700">
+                      {activity.date}
+                      <BsArrowRight />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
       )}
     </DashboardShell>
   );
 }
+
