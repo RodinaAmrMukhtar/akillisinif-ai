@@ -1,10 +1,13 @@
 ﻿import { NextResponse } from "next/server";
-import { airtableRequest } from "@/lib/airtableClient";
+
+export const dynamic = "force-dynamic";
 
 type AirtableRecord = {
   id: string;
   fields: Record<string, any>;
 };
+
+const AIRTABLE_API_URL = "https://api.airtable.com/v0";
 
 const TABLES = {
   kullanicilar: "Kullanicilar",
@@ -19,6 +22,14 @@ const TABLES = {
 
 function getAutomationSecret() {
   return process.env.AUTOMATION_SECRET?.trim() || "";
+}
+
+function getAirtableToken() {
+  return process.env.AIRTABLE_TOKEN?.trim() || "";
+}
+
+function getAirtableBaseId() {
+  return process.env.AIRTABLE_BASE_ID?.trim() || "";
 }
 
 function isAuthorized(request: Request) {
@@ -37,9 +48,7 @@ function asLinks(value: unknown): string[] {
     return [];
   }
 
-  return value
-    .map((item) => String(item || "").trim())
-    .filter(Boolean);
+  return value.map((item) => String(item || "").trim()).filter(Boolean);
 }
 
 function hasAnyLink(value: unknown, ids: string[]) {
@@ -94,38 +103,69 @@ function isSubmissionGraded(submission: AirtableRecord) {
   const status = getString(submission.fields.Durum).toLowerCase();
   const score = getNumber(submission.fields.Puan);
 
-  return status === "degerlendirildi" || status === "değerlendirildi" || score !== null;
+  return (
+    status === "degerlendirildi" ||
+    status === "değerlendirildi" ||
+    score !== null
+  );
 }
 
 function isPresentAttendance(attendance: AirtableRecord) {
   const status = getString(attendance.fields.Durum).toLowerCase();
 
-  return (
-    status === "geldi" ||
-    status === "gec geldi" ||
-    status === "geç geldi"
-  );
+  return status === "geldi" || status === "gec geldi" || status === "geç geldi";
 }
 
 async function listAll(tableName: string): Promise<AirtableRecord[]> {
+  const token = getAirtableToken();
+  const baseId = getAirtableBaseId();
+
+  if (!token || token === "PASTE_YOUR_AIRTABLE_PAT_TOKEN_HERE") {
+    throw new Error("AIRTABLE_TOKEN Vercel environment variable içinde eksik.");
+  }
+
+  if (!baseId) {
+    throw new Error("AIRTABLE_BASE_ID Vercel environment variable içinde eksik.");
+  }
+
   let offset = "";
   const records: AirtableRecord[] = [];
 
   do {
-    const query = new URLSearchParams();
-    query.set("pageSize", "100");
+    const url = new URL(
+      `${AIRTABLE_API_URL}/${baseId}/${encodeURIComponent(tableName)}`,
+    );
+
+    url.searchParams.set("pageSize", "100");
 
     if (offset) {
-      query.set("offset", offset);
+      url.searchParams.set("offset", offset);
     }
 
-    const response = await airtableRequest<{
-      records: AirtableRecord[];
-      offset?: string;
-    }>(`${encodeURIComponent(tableName)}?${query.toString()}`);
+    const response = await fetch(url.toString(), {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+    });
 
-    records.push(...(response.records || []));
-    offset = response.offset || "";
+    if (!response.ok) {
+      const details = await response.text();
+
+      throw new Error(
+        `Airtable tablo okuma hatası. Tablo: ${tableName}. Durum: ${response.status}. Detay: ${details}`,
+      );
+    }
+
+    const result = (await response.json()) as {
+      records?: AirtableRecord[];
+      offset?: string;
+    };
+
+    records.push(...(result.records || []));
+    offset = result.offset || "";
   } while (offset);
 
   return records;
@@ -359,8 +399,7 @@ export async function GET(request: Request) {
 
       const studentSummaries = activeStudentIds.map((studentId) => {
         const student = users.find((user) => user.id === studentId);
-        const studentName =
-          getString(student?.fields?.Ad_Soyad) || "Öğrenci";
+        const studentName = getString(student?.fields?.Ad_Soyad) || "Öğrenci";
 
         const studentMemberships = activeStudentMemberships.filter(
           (membership) => hasAnyLink(membership.fields.Kullanici, [studentId]),
@@ -391,9 +430,7 @@ export async function GET(request: Request) {
 
         const submissionRate =
           studentAssignments.length > 0
-            ? round(
-                (studentSubmissions.length / studentAssignments.length) * 100,
-              )
+            ? round((studentSubmissions.length / studentAssignments.length) * 100)
             : null;
 
         const studentGrades = teacherGrades.filter((grade) =>
@@ -479,6 +516,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       ok: true,
+      mode: "weekly_airtable_report",
       generatedAt: new Date().toISOString(),
       reportCount: reports.length,
       reports,
