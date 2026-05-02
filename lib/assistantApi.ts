@@ -3,7 +3,7 @@
   role: "Ogretmen" | "Ogrenci";
   question: string;
 }) {
-  const response = await fetch("/api/airtable/assistant/analyze", {
+  const response = await fetch("/api/ai/academic-assistant", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
