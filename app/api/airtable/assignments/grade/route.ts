@@ -194,7 +194,7 @@ export async function POST(request: Request) {
         fields: {
           Puan: score,
           Ogretmen_Geri_Bildirimi: feedback,
-          Durum: "Degerlendirildi",
+          Durum: "Teslim Edildi",
         },
       },
     });

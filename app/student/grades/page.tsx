@@ -1,422 +1,319 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  BsBarChart,
-  BsCalendarCheck,
-  BsCardChecklist,
-  BsCheckCircle,
-  BsClipboardData,
-  BsGraphUp,
-} from "react-icons/bs";
 import DashboardShell from "@/components/DashboardShell";
-import EmptyState from "@/components/EmptyState";
-import {
-  getStudentProgress,
-  type StudentProgressData,
-} from "@/lib/studentProgressApi";
 import { supabase } from "@/lib/supabaseClient";
 
-function metricValue(value: number | null, suffix = "%") {
-  if (value === null) return "Veri yok";
-  return `${value}${suffix}`;
+type StudentGrade = {
+  id: string;
+  title: string;
+  className: string;
+  lessonName: string;
+  gradeType: string;
+  score: number | null;
+  maxScore: number | null;
+  percentage: number | null;
+  weight: number | null;
+  date: string;
+  description: string;
+  publishStatus: string;
+  createdAt: string;
+};
+
+function getScoreClass(percentage: number | null) {
+  if (percentage === null) return "text-slate-500";
+  if (percentage < 50) return "text-red-700";
+  if (percentage < 70) return "text-orange-700";
+  return "text-emerald-700";
 }
 
-function scoreValue(score: number | null, maxPoints: number | null) {
-  if (score === null || maxPoints === null) return "Puan yok";
-  return `${score} / ${maxPoints}`;
+function getGradeTypeClass(type: string) {
+  if (type === "Final") return "border-violet-200 bg-violet-50 text-violet-700";
+  if (type === "Vize") return "border-blue-200 bg-blue-50 text-blue-700";
+  if (type === "Laboratuvar") return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (type === "Ortalama") return "border-orange-200 bg-orange-50 text-orange-700";
+  return "border-slate-200 bg-slate-50 text-slate-700";
 }
 
-function ProgressBar({ value }: { value: number | null }) {
-  const safeValue = value === null ? 0 : Math.max(0, Math.min(100, value));
+function formatScore(score: number | null, maxScore: number | null) {
+  if (score === null) return "Yok";
+  return `${Math.round(score)}/${maxScore || 100}`;
+}
 
-  return (
-    <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
-      <div
-        className="h-full rounded-full bg-blue-700"
-        style={{ width: `${safeValue}%` }}
-      />
-    </div>
-  );
+function formatPercent(value: number | null) {
+  if (value === null) return "Yok";
+  return `%${Math.round(value)}`;
+}
+
+function formatDate(value: string) {
+  if (!value) return "Tarih yok";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 export default function StudentGradesPage() {
-  const [progress, setProgress] = useState<StudentProgressData | null>(null);
+  const [studentName, setStudentName] = useState("Öğrenci");
+  const [grades, setGrades] = useState<StudentGrade[]>([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  async function loadProgress() {
-    setLoading(true);
-    setErrorMessage("");
-
-    const { data } = await supabase.auth.getUser();
-
-    if (!data.user) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const result = await getStudentProgress(data.user.id);
-      setProgress(result);
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
-          : "Performans verileri yüklenemedi.",
-      );
-    }
-
-    setLoading(false);
-  }
+  const [error, setError] = useState("");
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
-    loadProgress();
+    async function loadGrades() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        const email = user?.email || "";
+
+        const response = await fetch(
+          `/api/airtable/student-grades/list?studentEmail=${encodeURIComponent(email)}`,
+          {
+            cache: "no-store",
+          },
+        );
+
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+          throw new Error(result.message || "Notlar alınamadı.");
+        }
+
+        setStudentName(result.studentName || "Öğrenci");
+        setGrades(result.grades || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Beklenmeyen hata oluştu.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadGrades();
   }, []);
 
-  const gradedAssignments = useMemo(() => {
-    if (!progress) return [];
+  const gradeTypes = useMemo(() => {
+    return Array.from(new Set(grades.map((grade) => grade.gradeType).filter(Boolean)));
+  }, [grades]);
 
-    return progress.assignments.filter(
-      (assignment) => assignment.submission?.status === "Degerlendirildi",
-    );
-  }, [progress]);
+  const stats = useMemo(() => {
+    const withPercentage = grades.filter((grade) => grade.percentage !== null);
+
+    const average =
+      withPercentage.length > 0
+        ? Math.round(
+            withPercentage.reduce((sum, grade) => sum + Number(grade.percentage), 0) /
+              withPercentage.length,
+          )
+        : null;
+
+    const lowGrades = withPercentage.filter((grade) => Number(grade.percentage) < 50).length;
+    const highGrades = withPercentage.filter((grade) => Number(grade.percentage) >= 85).length;
+
+    return {
+      total: grades.length,
+      average,
+      lowGrades,
+      highGrades,
+      classCount: new Set(grades.map((grade) => grade.className)).size,
+    };
+  }, [grades]);
+
+  const filteredGrades = useMemo(() => {
+    if (filter === "all") return grades;
+
+    if (filter === "low") {
+      return grades.filter((grade) => grade.percentage !== null && grade.percentage < 50);
+    }
+
+    if (filter === "high") {
+      return grades.filter((grade) => grade.percentage !== null && grade.percentage >= 85);
+    }
+
+    return grades.filter((grade) => grade.gradeType === filter);
+  }, [filter, grades]);
 
   return (
     <DashboardShell
-      title="Notlarım ve Performansım"
-      description="Notlar, ödev teslimleri, öğretmen geri bildirimleri ve yoklama performansınızı görüntüleyin."
-      activePage="student-grades"
+      title="Notlarım"
+      description="Öğretmenin tarafından yayınlanan notlarını ve performans durumunu takip et."
     >
-      {loading && (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="h-8 w-56 animate-pulse rounded bg-slate-100" />
-          <div className="mt-5 h-4 w-full animate-pulse rounded bg-slate-100" />
+      <div className="space-y-6">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
+            Öğrenci Not Paneli
+          </p>
+          <h1 className="mt-2 text-2xl font-bold text-slate-950">{studentName}</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">
+            Bu sayfada yalnızca öğretmen tarafından yayınlanan notlar görünür. Taslak notlar
+            öğrenci panelinde gösterilmez.
+          </p>
         </div>
-      )}
 
-      {!loading && errorMessage && (
-        <div className="rounded-3xl border border-red-200 bg-red-50 p-6 text-sm leading-7 text-red-700">
-          {errorMessage}
+        <div className="grid gap-4 md:grid-cols-4">
+          <button
+            onClick={() => setFilter("all")}
+            className="rounded-3xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:border-blue-300"
+          >
+            <p className="text-sm font-medium text-slate-500">Toplam Not</p>
+            <p className="mt-2 text-3xl font-bold text-slate-950">{stats.total}</p>
+          </button>
+
+          <div className="rounded-3xl border border-blue-100 bg-blue-50 p-5 shadow-sm">
+            <p className="text-sm font-medium text-blue-600">Ortalama</p>
+            <p className="mt-2 text-3xl font-bold text-blue-700">
+              {stats.average === null ? "Yok" : `%${stats.average}`}
+            </p>
+          </div>
+
+          <button
+            onClick={() => setFilter("high")}
+            className="rounded-3xl border border-emerald-100 bg-emerald-50 p-5 text-left shadow-sm transition hover:border-emerald-300"
+          >
+            <p className="text-sm font-medium text-emerald-600">Güçlü Not</p>
+            <p className="mt-2 text-3xl font-bold text-emerald-700">{stats.highGrades}</p>
+          </button>
+
+          <button
+            onClick={() => setFilter("low")}
+            className="rounded-3xl border border-red-100 bg-red-50 p-5 text-left shadow-sm transition hover:border-red-300"
+          >
+            <p className="text-sm font-medium text-red-600">Destek Gereken</p>
+            <p className="mt-2 text-3xl font-bold text-red-700">{stats.lowGrades}</p>
+          </button>
         </div>
-      )}
 
-      {!loading && progress && progress.summary.activeClassCount === 0 && (
-        <EmptyState
-          icon={BsGraphUp}
-          title="Performans verisi için aktif sınıf gerekli"
-          description="Bir sınıfa katıldığınızda not, ödev ve yoklama performansınız burada görünecektir."
-          primaryActionLabel="Sınıfa Katıl"
-          primaryActionHref="/student/join-class"
-        />
-      )}
+        {gradeTypes.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setFilter("all")}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                filter === "all"
+                  ? "border-blue-200 bg-blue-50 text-blue-700"
+                  : "border-slate-200 bg-white text-slate-600"
+              }`}
+            >
+              Tümü
+            </button>
 
-      {!loading && progress && progress.summary.activeClassCount > 0 && (
-        <div className="space-y-8">
-          <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-blue-700">
-                  Öğrenci Performans Özeti
-                </p>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-950">
-                  {progress.student.name}
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {progress.student.email || "E-posta yok"}  Okul No:{" "}
-                  {progress.student.schoolNumber}
-                </p>
-              </div>
-
+            {gradeTypes.map((type) => (
               <button
-                type="button"
-                onClick={loadProgress}
-                className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50"
+                key={type}
+                onClick={() => setFilter(type)}
+                className={`rounded-full border px-4 py-2 text-sm font-semibold ${
+                  filter === type
+                    ? "border-blue-200 bg-blue-50 text-blue-700"
+                    : "border-slate-200 bg-white text-slate-600"
+                }`}
               >
-                Verileri Yenile
+                {type}
               </button>
-            </div>
-          </section>
+            ))}
+          </div>
+        ) : null}
 
-          <section className="grid gap-5 lg:grid-cols-4">
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3 text-slate-500">
-                <BsBarChart />
-                <p className="text-sm font-semibold">Not Ortalaması</p>
-              </div>
-              <p className="mt-4 text-4xl font-bold text-slate-950">
-                {metricValue(progress.summary.gradeAverage)}
-              </p>
-              <ProgressBar value={progress.summary.gradeAverage} />
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3 text-slate-500">
-                <BsCardChecklist />
-                <p className="text-sm font-semibold">Ödev Teslim</p>
-              </div>
-              <p className="mt-4 text-4xl font-bold text-slate-950">
-                {metricValue(progress.summary.assignmentSubmissionRate)}
-              </p>
-              <ProgressBar value={progress.summary.assignmentSubmissionRate} />
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3 text-slate-500">
-                <BsCalendarCheck />
-                <p className="text-sm font-semibold">Yoklama</p>
-              </div>
-              <p className="mt-4 text-4xl font-bold text-slate-950">
-                {metricValue(progress.summary.attendanceRate)}
-              </p>
-              <ProgressBar value={progress.summary.attendanceRate} />
-            </div>
-
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-3 text-slate-500">
-                <BsCheckCircle />
-                <p className="text-sm font-semibold">Değerlendirilen</p>
-              </div>
-              <p className="mt-4 text-4xl font-bold text-slate-950">
-                {gradedAssignments.length}
-              </p>
-              <p className="mt-2 text-sm text-slate-500">
-                Öğretmen puanı verilen ödev
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-slate-950">
-              Sınıf Bazlı Performans
-            </h2>
-
-            <div className="grid gap-5 lg:grid-cols-2">
-              {progress.classes.map((classItem) => (
-                <article
-                  key={classItem.id}
-                  className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-2xl font-bold text-slate-950">
-                        {classItem.className}
-                      </h3>
-                      <p className="mt-1 text-sm font-semibold text-slate-600">
-                        {classItem.courseName}
-                      </p>
-                    </div>
-
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                      <BsGraphUp />
-                    </div>
+        {loading ? (
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-600 shadow-sm">
+            Notlar yükleniyor...
+          </div>
+        ) : error ? (
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-red-700 shadow-sm">
+            {error}
+          </div>
+        ) : filteredGrades.length === 0 ? (
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-slate-600 shadow-sm">
+            Bu filtrede gösterilecek yayınlanmış not bulunmuyor.
+          </div>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {filteredGrades.map((grade) => (
+              <article
+                key={grade.id}
+                className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
+                      {grade.className}
+                    </p>
+                    <h2 className="mt-2 text-xl font-bold text-slate-950">
+                      {grade.gradeType || "Not"}
+                    </h2>
+                    <p className="mt-1 text-sm text-slate-500">{formatDate(grade.date)}</p>
                   </div>
 
-                  <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Not
-                      </p>
-                      <p className="mt-2 text-lg font-bold text-slate-950">
-                        {metricValue(classItem.gradeAverage)}
-                      </p>
-                      <ProgressBar value={classItem.gradeAverage} />
-                    </div>
-
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Ödev
-                      </p>
-                      <p className="mt-2 text-lg font-bold text-slate-950">
-                        {metricValue(classItem.submissionRate)}
-                      </p>
-                      <ProgressBar value={classItem.submissionRate} />
-                    </div>
-
-                    <div className="rounded-2xl bg-slate-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                        Yoklama
-                      </p>
-                      <p className="mt-2 text-lg font-bold text-slate-950">
-                        {metricValue(classItem.attendanceRate)}
-                      </p>
-                      <ProgressBar value={classItem.attendanceRate} />
-                    </div>
-                  </div>
-
-                  <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm leading-7 text-blue-900">
-                    {classItem.submittedAssignmentCount} / {classItem.assignmentCount} ödev teslim edildi.{" "}
-                    {classItem.presentAttendanceCount} / {classItem.attendanceSessionCount} yoklama kaydı mevcut.
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-slate-950">
-              Not Kayıtları
-            </h2>
-
-            {progress.grades.length === 0 ? (
-              <EmptyState
-                icon={BsClipboardData}
-                title="Henüz not kaydı yok"
-                description="Öğretmen ödev veya sınav notu girdiğinde burada listelenecektir."
-              />
-            ) : (
-              <div className="space-y-4">
-                {progress.grades.map((grade) => (
-                  <article
-                    key={grade.id}
-                    className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+                  <span
+                    className={`rounded-full border px-3 py-1 text-sm font-semibold ${getGradeTypeClass(
+                      grade.gradeType,
+                    )}`}
                   >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <span className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                          {grade.gradeType}
-                        </span>
+                    {grade.gradeType || "Not"}
+                  </span>
+                </div>
 
-                        <h3 className="mt-4 text-xl font-bold text-slate-950">
-                          {grade.title}
-                        </h3>
+                <div className="mt-5 grid gap-4 md:grid-cols-3">
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Puan
+                    </p>
+                    <p
+                      className={`mt-2 text-2xl font-bold ${getScoreClass(
+                        grade.percentage,
+                      )}`}
+                    >
+                      {formatScore(grade.score, grade.maxScore)}
+                    </p>
+                  </div>
 
-                        <p className="mt-2 text-sm font-semibold text-slate-600">
-                          {grade.className}  {grade.courseName}  {grade.date || "Tarih yok"}
-                        </p>
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Yüzde
+                    </p>
+                    <p
+                      className={`mt-2 text-2xl font-bold ${getScoreClass(
+                        grade.percentage,
+                      )}`}
+                    >
+                      {formatPercent(grade.percentage)}
+                    </p>
+                  </div>
 
-                        {grade.description && (
-                          <p className="mt-3 text-sm leading-7 text-slate-600">
-                            {grade.description}
-                          </p>
-                        )}
-                      </div>
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                      Ağırlık
+                    </p>
+                    <p className="mt-2 text-2xl font-bold text-slate-950">
+                      {grade.weight === null ? "Yok" : grade.weight}
+                    </p>
+                  </div>
+                </div>
 
-                      <div className="rounded-3xl bg-slate-50 p-5 text-center lg:min-w-[160px]">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                          Puan
-                        </p>
-                        <p className="mt-2 text-3xl font-bold text-slate-950">
-                          {scoreValue(grade.score, grade.maxPoints)}
-                        </p>
-                        <p className="mt-2 text-sm font-semibold text-blue-700">
-                          {metricValue(grade.percentage)}
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section>
-            <h2 className="mb-4 text-2xl font-bold tracking-tight text-slate-950">
-              Ödev Durumu ve Geri Bildirimler
-            </h2>
-
-            {progress.assignments.length === 0 ? (
-              <EmptyState
-                icon={BsCardChecklist}
-                title="Henüz ödev bulunmuyor"
-                description="Öğretmeniniz ödev yayınladığında burada teslim ve puan durumunuz görünecektir."
-              />
-            ) : (
-              <div className="grid gap-5 lg:grid-cols-2">
-                {progress.assignments.map((assignment) => (
-                  <article
-                    key={assignment.id}
-                    className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <span
-                          className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                            assignment.submission
-                              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                              : "border-amber-200 bg-amber-50 text-amber-700"
-                          }`}
-                        >
-                          {assignment.submission
-                            ? assignment.submission.status
-                            : "Teslim Bekliyor"}
-                        </span>
-
-                        <h3 className="mt-4 text-xl font-bold text-slate-950">
-                          {assignment.title}
-                        </h3>
-
-                        <p className="mt-2 text-sm font-semibold text-slate-600">
-                          {assignment.className}  {assignment.courseName}
-                        </p>
-
-                        <p className="mt-2 text-sm text-slate-500">
-                          Teslim tarihi: {assignment.dueDate || "Yok"}
-                        </p>
-                      </div>
-
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-700">
-                        <BsCardChecklist />
-                      </div>
-                    </div>
-
-                    {assignment.submission ? (
-                      <div className="mt-5 space-y-4">
-                        <div className="rounded-2xl bg-slate-50 p-4">
-                          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                            Teslim Metni
-                          </p>
-                          <p className="mt-2 text-sm leading-7 text-slate-700">
-                            {assignment.submission.text || "Teslim metni yok."}
-                          </p>
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl bg-slate-50 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                              Puan
-                            </p>
-                            <p className="mt-2 text-lg font-bold text-slate-950">
-                              {assignment.submission.score === null
-                                ? "Henüz değerlendirilmedi"
-                                : `${assignment.submission.score} / ${assignment.maxPoints}`}
-                            </p>
-                          </div>
-
-                          <div className="rounded-2xl bg-slate-50 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                              Teslim
-                            </p>
-                            <p className="mt-2 text-lg font-bold text-slate-950">
-                              {assignment.submission.late ? "Geç Teslim" : "Zamanında"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {assignment.submission.feedback && (
-                          <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-blue-700">
-                              Öğretmen Geri Bildirimi
-                            </p>
-                            <p className="mt-2 text-sm leading-7 text-blue-900">
-                              {assignment.submission.feedback}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-7 text-amber-800">
-                        Bu ödev için henüz teslim kaydınız yok. Ödevlerim
-                        sayfasından teslim gönderebilirsiniz.
-                      </div>
-                    )}
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
-        </div>
-      )}
+                {grade.description ? (
+                  <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50 p-5">
+                    <h3 className="font-bold text-slate-950">Öğretmen Açıklaması</h3>
+                    <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-700">
+                      {grade.description}
+                    </p>
+                  </div>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        )}
+      </div>
     </DashboardShell>
   );
 }

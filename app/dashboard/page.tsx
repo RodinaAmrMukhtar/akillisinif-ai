@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -103,7 +103,7 @@ export default function TeacherDashboardPage() {
   return (
     <DashboardShell
       title="Öğretmen Paneli"
-      description="AkıllıSınıf AI için gerçek Airtable verilerine bağlı akademik yönetim özeti."
+      description=""
       activePage="dashboard"
     >
       {loading && (

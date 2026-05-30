@@ -1,5 +1,6 @@
-﻿"use client";
+"use client";
 
+import ClassWorkspaceHeader from "@/components/ClassWorkspaceHeader";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -103,6 +104,7 @@ export default function TeacherClassDetailPage() {
       description="Sınıfa ait öğrenciler, bekleyen katılım istekleri ve akademik takip modülleri."
       activePage="classes"
     >
+      <ClassWorkspaceHeader />
       <Link
         href="/teacher/classes"
         className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-blue-700 transition hover:text-blue-800"

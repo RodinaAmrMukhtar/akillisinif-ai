@@ -50,9 +50,9 @@ export default function TeacherWeeklyReportsPage() {
 
   return (
     <DashboardShell
+      description="n8n taraf?ndan olu?turulan AI risk raporlar?"
+      title="Haftal?k Raporlar"
       activePage="weekly-reports"
-      pageTitle="Haftalık Raporlar"
-      pageDescription="n8n tarafından oluşturulan AI risk raporları"
     >
       <div className="space-y-6">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm">

@@ -207,7 +207,7 @@ function buildTeacherAnswer(input: {
   });
 
   const ungradedSubmissions = teacherSubmissions.filter(
-    (submission) => submission.fields.Durum !== "Degerlendirildi",
+    (submission) => submission.fields.Durum !== "Teslim Edildi",
   );
 
   const teacherGrades = input.grades.filter((grade) => {
@@ -461,7 +461,7 @@ function buildStudentAnswer(input: {
   );
 
   const gradedSubmissions = studentSubmissions.filter(
-    (submission) => submission.fields.Durum === "Degerlendirildi",
+    (submission) => submission.fields.Durum === "Teslim Edildi",
   );
 
   const studentGrades = input.grades.filter((grade) => {

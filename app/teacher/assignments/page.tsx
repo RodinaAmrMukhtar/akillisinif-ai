@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
@@ -218,7 +218,7 @@ export default function TeacherAssignmentsPage() {
   return (
     <DashboardShell
       title="Ödevler"
-      description="Gerçek Airtable Odevler, Odev_Teslimleri ve Notlar tablolarına bağlı ödev yönetimi."
+      description=""
       activePage="assignments"
     >
       {loading && (
@@ -569,12 +569,12 @@ export default function TeacherAssignmentsPage() {
                                     </p>
                                   </div>
 
-                                  {submission.status === "Degerlendirildi" && (
+                                  {submission.status === "Teslim Edildi" && (
                                     <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 lg:min-w-[220px]">
                                       <div className="flex items-center gap-2 text-emerald-700">
                                         <BsCheckCircle />
                                         <p className="text-sm font-semibold">
-                                          Değerlendirildi
+                                          Teslim Edildi
                                         </p>
                                       </div>
 

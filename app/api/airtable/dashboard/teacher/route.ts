@@ -626,7 +626,7 @@ export async function GET(request: Request) {
         assignmentCount: teacherAssignments.length,
         submissionCount: teacherSubmissions.length,
         gradedSubmissionCount: teacherSubmissions.filter(
-          (submission) => submission.fields.Durum === "Degerlendirildi",
+          (submission) => submission.fields.Durum === "Teslim Edildi",
         ).length,
         gradeRecordCount: teacherGrades.length,
         attendanceSessionCount: teacherAttendanceSessions.length,

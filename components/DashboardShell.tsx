@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -109,6 +109,11 @@ const teacherMenuItems: MenuItem[] = [
     key: "teacher-ai",
     icon: BsCpu,
   },
+{ key: "risk-signals", label: "Risk Sinyalleri", href: "/teacher/risk-signals", icon: BsCpu },
+{ key: "intervention-plans", label: "Müdahale Planları", href: "/teacher/intervention-plans", icon: BsCpu },
+{ key: "reports", label: "AI Raporları", href: "/teacher/reports", icon: BsCpu },
+{ key: "audit-logs", label: "Denetim Kayıtları", href: "/admin/audit-logs", icon: BsCpu },
+{ key: "predictions", label: "AI Tahminleri", href: "/teacher/predictions", icon: BsCpu },
 ];
 
 const studentMenuItems: MenuItem[] = [
@@ -142,6 +147,7 @@ const studentMenuItems: MenuItem[] = [
     key: "student-grades",
     icon: BsClipboardData,
   },
+  { key: "student-homework", label: "?devlerim", href: "/student/homework", icon: BsClipboardData },
 
 
 

@@ -155,7 +155,7 @@ async function listAll(tableName: string): Promise<AirtableRecord[]> {
       const details = await response.text();
 
       throw new Error(
-        `Airtable tablo okuma hatası. Tablo: ${tableName}. Durum: ${response.status}. Detay: ${details}`,
+        `Airtable tablo okuma hatası. Tablo: ${tableName}. Durum: "Teslim Edildi"}. Detay: ${details}`,
       );
     }
 

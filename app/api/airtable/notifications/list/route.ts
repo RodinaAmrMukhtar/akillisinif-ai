@@ -1,173 +1,261 @@
-﻿import { NextResponse } from "next/server";
 
-type AirtableRecord = {
-  id: string;
-  createdTime?: string;
-  fields: Record<string, any>;
-};
+import { NextResponse } from "next/server";
 
 const AIRTABLE_API_URL = "https://api.airtable.com/v0";
 
-function getString(value: unknown) {
+type AirtableRecord = {
+  id: string;
+  fields: Record<string, any>;
+  createdTime?: string;
+};
+
+function getEnv(name: string) {
+  const value = process.env[name];
+
+  if (!value) {
+    throw new Error(`${name} is missing`);
+  }
+
+  return value;
+}
+
+function airtableHeaders() {
+  return {
+    Authorization: `Bearer ${getEnv("AIRTABLE_TOKEN")}`,
+    "Content-Type": "application/json",
+  };
+}
+
+function text(value: unknown) {
   return String(value || "").trim();
 }
 
-function normalize(value: unknown) {
-  return getString(value)
-    .toLowerCase()
-    .replaceAll("ı", "i")
-    .replaceAll("ğ", "g")
-    .replaceAll("ü", "u")
-    .replaceAll("ş", "s")
-    .replaceAll("ö", "o")
-    .replaceAll("ç", "c")
-    .replace(/\s+/g, " ")
-    .trim();
+function lower(value: unknown) {
+  return text(value).toLowerCase();
 }
 
-function asLinks(value: unknown): string[] {
+function getLinkedIds(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.map((item) => String(item || "").trim()).filter(Boolean);
 }
 
-async function listAll(tableName: string): Promise<AirtableRecord[]> {
-  const token = process.env.AIRTABLE_TOKEN?.trim();
-  const baseId = process.env.AIRTABLE_BASE_ID?.trim();
+function pick(fields: Record<string, any>, names: string[]) {
+  for (const name of names) {
+    if (fields[name] !== undefined && fields[name] !== null && text(fields[name]) !== "") {
+      return fields[name];
+    }
+  }
 
-  if (!token) throw new Error("AIRTABLE_TOKEN eksik.");
-  if (!baseId) throw new Error("AIRTABLE_BASE_ID eksik.");
+  return "";
+}
 
-  let offset = "";
+function isRead(fields: Record<string, any>) {
+  const checkboxValue = fields.Okundu_Mu ?? fields.Okundu ?? fields.Read;
+
+  if (typeof checkboxValue === "boolean") {
+    return checkboxValue;
+  }
+
+  const status = lower(fields.Durum ?? fields.Okunma_Durumu ?? fields.Status);
+
+  return (
+    status === "okundu" ||
+    status === "read" ||
+    status === "tamamlandi" ||
+    status === "tamamland?"
+  );
+}
+
+async function listAirtableRecords(tableName: string) {
+  const baseId = getEnv("AIRTABLE_BASE_ID");
   const records: AirtableRecord[] = [];
+  let offset = "";
 
   do {
-    const url = new URL(`${AIRTABLE_API_URL}/${baseId}/${encodeURIComponent(tableName)}`);
-    url.searchParams.set("pageSize", "100");
+    const params = new URLSearchParams();
+    params.set("pageSize", "100");
 
-    if (offset) url.searchParams.set("offset", offset);
+    if (offset) {
+      params.set("offset", offset);
+    }
 
-    const response = await fetch(url.toString(), {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
+    const url = `${AIRTABLE_API_URL}/${baseId}/${encodeURIComponent(tableName)}?${params.toString()}`;
+
+    const response = await fetch(url, {
+      headers: airtableHeaders(),
       cache: "no-store",
     });
 
-    if (!response.ok) {
-      const details = await response.text();
-      throw new Error(`Airtable okuma hatası. Tablo: ${tableName}. Durum: ${response.status}. Detay: ${details}`);
-    }
+    const data = await response.json();
 
-    const data = (await response.json()) as {
-      records?: AirtableRecord[];
-      offset?: string;
-    };
+    if (!response.ok) {
+      return {
+        ok: false,
+        status: response.status,
+        error: data,
+        records: [] as AirtableRecord[],
+      };
+    }
 
     records.push(...(data.records || []));
     offset = data.offset || "";
   } while (offset);
 
-  return records;
-}
-
-function findUser(users: AirtableRecord[], authId: string, email: string, name: string) {
-  return users.find((user) => {
-    const airtableAuthId = getString(user.fields.Auth_ID);
-    const airtableEmail = normalize(user.fields.Eposta);
-    const airtableName = normalize(user.fields.Ad_Soyad);
-
-    return (
-      Boolean(authId && airtableAuthId === authId) ||
-      Boolean(email && airtableEmail === normalize(email)) ||
-      Boolean(name && airtableName === normalize(name))
-    );
-  });
-}
-
-function recordDate(record: AirtableRecord) {
-  return (
-    record.fields.Olusturma_Tarihi ||
-    record.createdTime ||
-    record.fields.Okunma_Tarihi ||
-    ""
-  );
+  return {
+    ok: true,
+    status: 200,
+    records,
+  };
 }
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
 
-    const authId = getString(searchParams.get("authId"));
-    const email = getString(searchParams.get("email"));
-    const name = getString(searchParams.get("name"));
+    const email =
+      lower(searchParams.get("email")) ||
+      lower(searchParams.get("userEmail")) ||
+      lower(searchParams.get("teacherEmail")) ||
+      lower(searchParams.get("studentEmail"));
 
-    const [users, notifications, classes] = await Promise.all([
-      listAll("Kullanicilar"),
-      listAll("Bildirimler"),
-      listAll("Siniflar"),
-    ]);
+    const usersResult = await listAirtableRecords("Kullanicilar");
+    const notificationsResult = await listAirtableRecords("Bildirimler");
 
-    const user = findUser(users, authId, email, name);
-
-    if (!user) {
-      return NextResponse.json({
-        ok: true,
-        user: null,
-        unreadCount: 0,
-        notifications: [],
-      });
+    for (const result of [usersResult, notificationsResult]) {
+      if (!result.ok) {
+        return NextResponse.json(
+          {
+            ok: false,
+            message: "Bildirim kay?tlar? okunamad?.",
+            details: result.error,
+          },
+          { status: result.status },
+        );
+      }
     }
 
-    const classMap = new Map(
-      classes.map((classRecord) => [
-        classRecord.id,
-        getString(classRecord.fields.Sinif_Adi) ||
-          getString(classRecord.fields.Ders_Adi) ||
-          "Sınıf",
-      ]),
-    );
+    const users = usersResult.records;
+    const notifications = notificationsResult.records;
 
-    const userNotifications = notifications
-      .filter((notification) => asLinks(notification.fields.Alici).includes(user.id))
-      .sort((a, b) => getString(recordDate(b)).localeCompare(getString(recordDate(a))));
+    const currentUser = users.find((user) => lower(user.fields?.Eposta) === email);
+    const currentUserId = currentUser?.id || "";
 
-    const mappedNotifications = userNotifications.map((notification) => {
-      const classId = asLinks(notification.fields.Sinif)[0] || "";
-      const isRead = Boolean(notification.fields.Okundu_Mu);
+    const filtered = notifications.filter((notification) => {
+      if (!email && !currentUserId) {
+        return true;
+      }
+
+      const fields = notification.fields || {};
+
+      const linkedRecipientIds = [
+        ...getLinkedIds(fields.Kullanici),
+        ...getLinkedIds(fields.Alici),
+        ...getLinkedIds(fields.Ogrenci),
+        ...getLinkedIds(fields.Ogretmen),
+        ...getLinkedIds(fields.Veli),
+      ];
+
+      const directEmail =
+        lower(fields.Eposta) ||
+        lower(fields.Alici_Eposta) ||
+        lower(fields.Kullanici_Eposta) ||
+        lower(fields.Email);
+
+      return (
+        linkedRecipientIds.includes(currentUserId) ||
+        Boolean(directEmail && directEmail === email)
+      );
+    });
+
+    const normalized = filtered.map((notification) => {
+      const fields = notification.fields || {};
+
+      const title = text(
+        pick(fields, [
+          "Bildirim_Basligi",
+          "Bildirim_Ba?l???",
+          "Baslik",
+          "Ba?l?k",
+          "Bildirim_Adi",
+          "Bildirim_Ad?",
+          "Islem_Adi",
+          "??lem_Ad?",
+        ]),
+      );
+
+      const message = text(
+        pick(fields, [
+          "Mesaj",
+          "Bildirim_Mesaji",
+          "Bildirim_Mesaj?",
+          "Bildirim_Metni",
+          "Icerik",
+          "??erik",
+          "Aciklama",
+          "A??klama",
+        ]),
+      );
+
+      const type = text(
+        pick(fields, [
+          "Bildirim_Turu",
+          "Bildirim_T?r?",
+          "Tur",
+          "T?r",
+          "Kategori",
+          "Islem_Turu",
+          "??lem_T?r?",
+        ]),
+      );
+
+      const createdAt =
+        text(
+          pick(fields, [
+            "Olusturma_Tarihi",
+            "Olu?turma_Tarihi",
+            "Bildirim_Tarihi",
+            "Tarih",
+            "Gonderim_Tarihi",
+            "G?nderim_Tarihi",
+          ]),
+        ) || notification.createdTime || "";
 
       return {
         id: notification.id,
-        title: getString(notification.fields.Bildirim_Basligi),
-        message: getString(notification.fields.Mesaj),
-        type: getString(notification.fields.Bildirim_Turu),
-        importance: getString(notification.fields.Onem_Derecesi),
-        channel: getString(notification.fields.Kanal),
-        classId,
-        className: classMap.get(classId) || "Genel",
-        isRead,
-        sent: Boolean(notification.fields.Gonderildi_Mi),
-        createdAt: getString(recordDate(notification)),
-        readAt: getString(notification.fields.Okunma_Tarihi),
+        title: title || "Bildirim",
+        message: message || "Bildirim detay? bulunmuyor.",
+        type: type || "Genel",
+        read: isRead(fields),
+        link: text(pick(fields, ["Link", "URL", "Hedef_Link", "Yonlendirme_Link", "Y?nlendirme_Link"])),
+        relatedTable: text(pick(fields, ["Ilgili_Tablo", "?lgili_Tablo", "Tablo_Adi", "Tablo_Ad?"])),
+        relatedRecordId: text(pick(fields, ["Ilgili_Kayit_ID", "?lgili_Kay?t_ID", "Kayit_ID", "Kay?t_ID"])),
+        createdAt,
       };
+    });
+
+    normalized.sort((a, b) => {
+      if (Number(a.read) !== Number(b.read)) {
+        return Number(a.read) - Number(b.read);
+      }
+
+      const dateA = Date.parse(a.createdAt || "");
+      const dateB = Date.parse(b.createdAt || "");
+
+      return (Number.isFinite(dateB) ? dateB : 0) - (Number.isFinite(dateA) ? dateA : 0);
     });
 
     return NextResponse.json({
       ok: true,
-      user: {
-        id: user.id,
-        name: getString(user.fields.Ad_Soyad),
-        email: getString(user.fields.Eposta),
-      },
-      unreadCount: mappedNotifications.filter((notification) => !notification.isRead).length,
-      notifications: mappedNotifications,
+      userFound: Boolean(currentUserId),
+      count: normalized.length,
+      unreadCount: normalized.filter((item) => !item.read).length,
+      notifications: normalized,
     });
   } catch (error) {
     return NextResponse.json(
       {
         ok: false,
-        message: "Bildirimler yüklenemedi.",
+        message: "Bildirimler al?namad?.",
         error: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },
