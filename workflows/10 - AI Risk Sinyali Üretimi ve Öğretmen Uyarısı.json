@@ -1,0 +1,968 @@
+{
+  "name": "10 - AI Risk Sinyali Üretimi ve Öğretmen Uyarısı",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f07e19b4-610e-484e-8839-127b99eea443",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblqVSO23KjBVbUAq",
+          "mode": "list",
+          "cachedResultName": "Ogrenci_Ozetleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblqVSO23KjBVbUAq"
+        },
+        "filterByFormula": "=={{ `OR(  {Risk_Seviyesi}='Yuksek',  {Risk_Seviyesi}='Yüksek',  {Risk_Seviyesi}='Kritik',  {Risk_Puani}>=70,  {Not_Trendi}='Dusuyor',  {Not_Trendi}='Ani Dusus',  {Eksik_Odev_Sayisi}>=2)` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "413b25e6-01de-4b80-9f9c-9a78fa1f4e8b",
+      "name": "GET Student Summaries",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWkpy5SabmxCF5r",
+          "mode": "list",
+          "cachedResultName": "Tahminler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblWkpy5SabmxCF5r"
+        },
+        "filterByFormula": "={{ `AND(  {Gecerli_Mi}=1,  OR(    {Risk_Seviyesi}='Yüksek',    {Risk_Seviyesi}='Yuksek',    {Risk_Seviyesi}='Kritik'  ))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "3f09dee0-f3b2-4367-89d1-0b66a5ce0b37",
+      "name": "GET Predictions",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXLgrVIjnJcjQqo",
+          "mode": "list",
+          "cachedResultName": "Risk_Sinyalleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblXLgrVIjnJcjQqo"
+        },
+        "filterByFormula": "={{ `FIND('RISK_SIGNAL:', {Aciklama})` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "7e56f8f1-1674-485c-a238-0a18ffebf6c2",
+      "name": "GET Existing Risk Signals",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl9ZKwmWAW0cM6Ge",
+          "mode": "list",
+          "cachedResultName": "Kullanicilar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl9ZKwmWAW0cM6Ge"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "eb5c0d2a-7ba2-41ae-a23e-28db99525515",
+      "name": "GET Users",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8cYm3VAc7eegJK",
+          "mode": "list",
+          "cachedResultName": "Siniflar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl8cYm3VAc7eegJK"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "2f16192c-2af3-4f8f-939c-6c1d4d69fd9e",
+      "name": "GET Classes",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeRecord(json) {\n  if (!json) return null;\n\n  if (Array.isArray(json.records)) {\n    return json.records.map(normalizeRecord).filter(Boolean);\n  }\n\n  if (json.fields) {\n    return {\n      id: json.id || json.recordId,\n      fields: json.fields,\n    };\n  }\n\n  const { id, recordId, createdTime, ...rest } = json;\n\n  return {\n    id: id || recordId,\n    fields: rest,\n  };\n}\n\nfunction getRecords(nodeName) {\n  const items = $items(nodeName) || [];\n  const records = [];\n\n  for (const item of items) {\n    const normalized = normalizeRecord(item.json);\n\n    if (Array.isArray(normalized)) {\n      records.push(...normalized);\n    } else if (normalized) {\n      records.push(normalized);\n    }\n  }\n\n  return records.filter((record) => record.id);\n}\n\nfunction asLinks(value) {\n  if (!value) return [];\n\n  if (Array.isArray(value)) {\n    return value\n      .map((item) => {\n        if (typeof item === \"string\") return item;\n        if (item?.id) return item.id;\n        if (item?.recordId) return item.recordId;\n        return String(item || \"\");\n      })\n      .map((item) => item.trim())\n      .filter(Boolean);\n  }\n\n  if (typeof value === \"string\") {\n    return [value.trim()].filter(Boolean);\n  }\n\n  return [];\n}\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction getNumber(value) {\n  const numberValue = Number(value);\n  return Number.isFinite(numberValue) ? numberValue : null;\n}\n\nfunction normalize(value) {\n  return getString(value)\n    .toLowerCase()\n    .replaceAll(\"ı\", \"i\")\n    .replaceAll(\"ğ\", \"g\")\n    .replaceAll(\"ü\", \"u\")\n    .replaceAll(\"ş\", \"s\")\n    .replaceAll(\"ö\", \"o\")\n    .replaceAll(\"ç\", \"c\")\n    .trim();\n}\n\nfunction percentToText(value) {\n  const numberValue = getNumber(value);\n  if (numberValue === null) return \"Yok\";\n  if (numberValue <= 1) return `${Math.round(numberValue * 10000) / 100}%`;\n  return `${Math.round(numberValue * 100) / 100}%`;\n}\n\nfunction getWeekKey() {\n  const now = new Date();\n  const day = now.getDay();\n  const diffToMonday = day === 0 ? -6 : 1 - day;\n\n  const monday = new Date(now);\n  monday.setDate(now.getDate() + diffToMonday);\n\n  const sunday = new Date(monday);\n  sunday.setDate(monday.getDate() + 6);\n\n  return `${monday.toISOString().slice(0, 10)}_${sunday.toISOString().slice(0, 10)}`;\n}\n\nfunction findUser(users, userId) {\n  return users.find((user) => user.id === userId);\n}\n\nfunction findClass(classes, classId) {\n  return classes.find((item) => item.id === classId);\n}\n\nfunction decideSignalType(summary, prediction) {\n  const trend = normalize(summary?.fields?.Not_Trendi);\n  const absence = getNumber(summary?.fields?.Devamsizlik_Orani);\n  const missingAssignments = getNumber(summary?.fields?.Eksik_Odev_Sayisi);\n  const lateAssignments = getNumber(summary?.fields?.Gec_Teslim_Sayisi);\n  const risk = normalize(summary?.fields?.Risk_Seviyesi || prediction?.fields?.Risk_Seviyesi);\n\n  if (trend === \"ani dusus\" || trend === \"dusuyor\") return \"Not Dususu\";\n  if (absence !== null && (absence >= 0.2 || absence >= 20)) return \"Devamsizlik Riski\";\n  if ((missingAssignments || 0) >= 2 || (lateAssignments || 0) >= 2) return \"Odev Teslim Riski\";\n  if (risk === \"kritik\") return \"Kritik Akademik Risk\";\n  return \"Genel Akademik Risk\";\n}\n\nfunction decideImportance(summary, prediction) {\n  const riskLevel = normalize(summary?.fields?.Risk_Seviyesi || prediction?.fields?.Risk_Seviyesi);\n  const riskScore = getNumber(summary?.fields?.Risk_Puani);\n\n  if (riskLevel === \"kritik\" || (riskScore !== null && riskScore >= 85)) return \"Kritik\";\n  if (riskLevel === \"yuksek\" || riskLevel === \"yüksek\" || (riskScore !== null && riskScore >= 70)) return \"Yuksek\";\n  if (riskScore !== null && riskScore >= 50) return \"Orta\";\n\n  return \"Orta\";\n}\n\nconst summaries = getRecords(\"GET Student Summaries\");\nconst predictions = getRecords(\"GET Predictions\");\nconst existingSignals = getRecords(\"GET Existing Risk Signals\");\nconst users = getRecords(\"GET Users\");\nconst classes = getRecords(\"GET Classes\");\n\nconst weekKey = getWeekKey();\n\nconst existingText = existingSignals\n  .map((signal) => getString(signal.fields.Aciklama))\n  .join(\"\\n\");\n\nconst candidates = [];\n\nfor (const summary of summaries) {\n  const studentId = asLinks(summary.fields.Ogrenci)[0];\n  const classId = asLinks(summary.fields.Sinif)[0];\n\n  if (!studentId || !classId) continue;\n\n  const matchingPrediction = predictions.find((prediction) => {\n    return (\n      asLinks(prediction.fields.Ogrenci).includes(studentId) &&\n      asLinks(prediction.fields.Sinif).includes(classId)\n    );\n  });\n\n  const trackingCode = `RISK_SIGNAL:${weekKey}:OZET:${summary.id}`;\n\n  if (existingText.includes(trackingCode)) {\n    continue;\n  }\n\n  const student = findUser(users, studentId);\n  const classRecord = findClass(classes, classId);\n\n  const teacherId = asLinks(classRecord?.fields?.Ogretmen)[0];\n  const teacher = findUser(users, teacherId);\n\n  if (!teacherId || !teacher?.fields?.Eposta) continue;\n\n  const studentName =\n    getString(student?.fields?.Ad_Soyad) ||\n    getString(student?.fields?.Eposta) ||\n    \"Öğrenci\";\n\n  const className =\n    getString(classRecord?.fields?.Sinif_Adi) ||\n    getString(classRecord?.fields?.Ders_Adi) ||\n    \"Sınıf\";\n\n  const signalType = decideSignalType(summary, matchingPrediction);\n  const importance = decideImportance(summary, matchingPrediction);\n\n  const dataSummary = [\n    `Öğrenci: ${studentName}`,\n    `Sınıf: ${className}`,\n    `Risk seviyesi: ${getString(summary.fields.Risk_Seviyesi) || getString(matchingPrediction?.fields?.Risk_Seviyesi) || \"Yok\"}`,\n    `Risk puanı: ${getString(summary.fields.Risk_Puani) || \"Yok\"}`,\n    `Genel ortalama: ${getString(summary.fields.Genel_Ortalama) || \"Yok\"}`,\n    `Son 3 not ortalaması: ${getString(summary.fields.Son_3_Not_Ortalamasi) || \"Yok\"}`,\n    `Not trendi: ${getString(summary.fields.Not_Trendi) || \"Yok\"}`,\n    `Not düşüşü puanı: ${getString(summary.fields.Not_Dususu_Puani) || \"Yok\"}`,\n    `Devamsızlık oranı: ${percentToText(summary.fields.Devamsizlik_Orani)}`,\n    `Ödev teslim oranı: ${percentToText(summary.fields.Odev_Teslim_Orani)}`,\n    `Geç teslim sayısı: ${getString(summary.fields.Gec_Teslim_Sayisi) || \"0\"}`,\n    `Eksik ödev sayısı: ${getString(summary.fields.Eksik_Odev_Sayisi) || \"0\"}`,\n    `Sınıf ortalamasına göre fark: ${getString(summary.fields.Sinif_Ortalamasina_Gore_Fark) || \"Yok\"}`,\n    `AI önerisi: ${getString(summary.fields.AI_Onerisi) || \"Yok\"}`,\n    matchingPrediction\n      ? `AI tahmin özeti: ${getString(matchingPrediction.fields.Ozet) || getString(matchingPrediction.fields.Ogretmene_Gosterilecek) || \"Yok\"}`\n      : \"AI tahmin özeti: Yok\",\n    `Sinyal türü: ${signalType}`,\n    `Önem derecesi: ${importance}`,\n    `Takip kodu: ${trackingCode}`,\n  ].join(\"\\n\");\n\n  const aiPrompt = `\nSen AkıllıSınıf AI erken uyarı sistemi için çalışan Türkçe akademik risk analizi asistanısın.\n\nAşağıdaki öğrenci verisine göre öğretmenin anlayacağı kısa bir risk sinyali açıklaması ve uygulanabilir aksiyon önerisi üret.\n\nVeri:\n${dataSummary}\n\nÇıktı formatı kesinlikle şu şekilde olsun:\n\nACIKLAMA:\n2-4 cümlelik kısa açıklama.\n\nONERILEN_AKSIYON:\n2-4 maddelik uygulanabilir öğretmen aksiyonu.\n\nKurallar:\n- Türkçe yaz.\n- Öğrenciyi suçlayıcı dil kullanma.\n- Öğretmene karar desteği ver.\n- Veride olmayan şeyi uydurma.\n- Çok uzun yazma.\n`;\n\n  candidates.push({\n    json: {\n      trackingCode,\n      studentId,\n      studentName,\n      classId,\n      className,\n      teacherId,\n      teacherName: getString(teacher.fields.Ad_Soyad) || \"Öğretmen\",\n      teacherEmail: getString(teacher.fields.Eposta),\n      summaryId: summary.id,\n      predictionId: matchingPrediction?.id || \"\",\n      signalType,\n      importance,\n      riskScore: getNumber(summary.fields.Risk_Puani) || 70,\n      dataSummary,\n      aiPrompt,\n    },\n  });\n}\n\nreturn candidates;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "03a98aa2-97b5-4b07-b9a3-6618e1302219",
+      "name": "Prepare Risk Signal Candidates"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://akillisinif-ai.vercel.app"
+            },
+            {
+              "name": "X-Title",
+              "value": "AkilliSinif AI Risk Signal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    model: \"openrouter/free\",\n    messages: [\n      {\n        role: \"system\",\n        content:\n          \"Sen AkıllıSınıf AI için çalışan Türkçe erken uyarı ve öğretmen karar destek asistanısın.\",\n      },\n      {\n        role: \"user\",\n        content: $json.aiPrompt,\n      },\n    ],\n    temperature: 0.2,\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "d028be6f-6c61-40cb-af45-25e711f1184b",
+      "name": "OpenRouter Risk Signal Text"
+    },
+    {
+      "parameters": {
+        "jsCode": "function getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction tryParseJson(value) {\n  if (typeof value !== \"string\") return value;\n\n  try {\n    return JSON.parse(value);\n  } catch {\n    return value;\n  }\n}\n\nfunction findTextDeep(value, depth = 0) {\n  if (depth > 8 || value === null || value === undefined) return \"\";\n\n  const parsed = tryParseJson(value);\n\n  if (typeof parsed === \"string\") {\n    return parsed.trim();\n  }\n\n  if (Array.isArray(parsed)) {\n    for (const item of parsed) {\n      const found = findTextDeep(item, depth + 1);\n      if (found) return found;\n    }\n    return \"\";\n  }\n\n  if (typeof parsed === \"object\") {\n    const directCandidates = [\n      parsed?.choices?.[0]?.message?.content,\n      parsed?.body?.choices?.[0]?.message?.content,\n      parsed?.data?.choices?.[0]?.message?.content,\n      parsed?.response?.choices?.[0]?.message?.content,\n      parsed?.message?.content,\n      parsed?.content,\n      parsed?.text,\n      parsed?.answer,\n      parsed?.output,\n      parsed?.body,\n      parsed?.data,\n      parsed?.response,\n    ];\n\n    for (const candidate of directCandidates) {\n      const found = findTextDeep(candidate, depth + 1);\n      if (found) return found;\n    }\n\n    for (const key of Object.keys(parsed)) {\n      const found = findTextDeep(parsed[key], depth + 1);\n      if (found) return found;\n    }\n  }\n\n  return \"\";\n}\n\nfunction parseAiText(text, source) {\n  const clean = getString(text);\n\n  const aciklamaMatch = clean.match(/ACIKLAMA:\\s*([\\s\\S]*?)(ONERILEN_AKSIYON:|$)/i);\n  const aksiyonMatch = clean.match(/ONERILEN_AKSIYON:\\s*([\\s\\S]*)/i);\n\n  const fallbackDescription = [\n    `${source.studentName} için ${source.signalType} kapsamında erken uyarı sinyali oluştu.`,\n    `Risk puanı ${source.riskScore}, önem derecesi ${source.importance}.`,\n    \"Öğrencinin son akademik verileri öğretmen tarafından incelenmelidir.\",\n  ].join(\" \");\n\n  const fallbackAction = [\n    \"- Öğrenciyle kısa bir bireysel görüşme yapılmalı.\",\n    \"- Eksik ödevler ve son not değişimleri kontrol edilmeli.\",\n    \"- Gerekirse küçük hedefli bir destek planı oluşturulmalı.\",\n  ].join(\"\\n\");\n\n  return {\n    description: getString(aciklamaMatch?.[1]) || fallbackDescription,\n    action: getString(aksiyonMatch?.[1]) || fallbackAction,\n  };\n}\n\nfunction buildEmailHtml({ teacherName, studentName, className, signalType, importance, description, action, trackingCode }) {\n  return `\n<div style=\"font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;padding:32px;\">\n  <div style=\"max-width:720px;margin:auto;background:white;border-radius:24px;overflow:hidden;border:1px solid #e2e8f0;\">\n    <div style=\"background:#991b1b;color:white;padding:28px 32px;\">\n      <div style=\"font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#fecaca;font-weight:700;\">\n        AkıllıSınıf AI\n      </div>\n      <h1 style=\"margin:12px 0 0;font-size:28px;line-height:1.2;color:#ffffff;\">\n        Yeni Erken Uyarı Risk Sinyali\n      </h1>\n      <p style=\"margin:12px 0 0;color:#fee2e2;font-size:15px;line-height:1.6;\">\n        ${className} sınıfında takip gerektiren bir öğrenci sinyali oluşturuldu.\n      </p>\n    </div>\n\n    <div style=\"padding:32px;color:#0f172a;\">\n      <p style=\"margin:0 0 16px;font-size:16px;line-height:1.7;\">\n        Merhaba <strong>${teacherName}</strong>,\n      </p>\n\n      <div style=\"background:#fef2f2;border:1px solid #fecaca;border-radius:18px;padding:18px;margin-bottom:18px;\">\n        <p style=\"margin:0 0 8px;font-size:15px;\"><strong>Öğrenci:</strong> ${studentName}</p>\n        <p style=\"margin:0 0 8px;font-size:15px;\"><strong>Sınıf:</strong> ${className}</p>\n        <p style=\"margin:0 0 8px;font-size:15px;\"><strong>Sinyal türü:</strong> ${signalType}</p>\n        <p style=\"margin:0;font-size:15px;\"><strong>Önem derecesi:</strong> ${importance}</p>\n      </div>\n\n      <h2 style=\"font-size:17px;margin:22px 0 10px;\">Açıklama</h2>\n      <div style=\"white-space:pre-wrap;line-height:1.7;font-size:15px;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:18px;\">\n${description}\n      </div>\n\n      <h2 style=\"font-size:17px;margin:22px 0 10px;\">Önerilen Aksiyon</h2>\n      <div style=\"white-space:pre-wrap;line-height:1.7;font-size:15px;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:18px;\">\n${action}\n      </div>\n\n      <div style=\"margin-top:24px;padding:14px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12px;\">\n        Sistem takip kodu: ${trackingCode}\n      </div>\n    </div>\n\n    <div style=\"background:#f8fafc;padding:20px 32px;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.6;\">\n      AkıllıSınıf AI · Yapay Zekâ Destekli Sınıf Performans ve Erken Uyarı Sistemi\n    </div>\n  </div>\n</div>\n`;\n}\n\nconst sourceItems = $items(\"Prepare Risk Signal Candidates\");\nconst aiItems = $items(\"OpenRouter Risk Signal Text\");\n\nconst today = new Date().toISOString().slice(0, 10);\nconst output = [];\n\nfor (let index = 0; index < sourceItems.length; index += 1) {\n  const source = sourceItems[index]?.json || {};\n  const ai = aiItems[index]?.json || {};\n\n  const aiText = findTextDeep(ai);\n  const parsed = parseAiText(aiText, source);\n\n  const description = [\n    parsed.description,\n    \"\",\n    `Takip kodu: ${source.trackingCode}`,\n  ].join(\"\\n\");\n\n  const action = parsed.action;\n\n  output.push({\n    json: {\n      fields: {\n        Sinyal_Adi: `${source.className} - ${source.studentName} - ${source.signalType}`,\n        Ogrenci: [source.studentId],\n        Sinif: [source.classId],\n        Ozet: [source.summaryId],\n        Sinyal_Turu: source.signalType,\n        Risk_Puani: source.riskScore,\n        Onem_Derecesi: source.importance,\n        Aciklama: description,\n        Onerilen_Aksiyon: action,\n        Durum: \"Yeni\",\n        Tespit_Tarihi: today,\n      },\n      notificationFields: {\n        Bildirim_Basligi: \"Yeni erken uyarı risk sinyali\",\n        Alici: [source.teacherId],\n        Sinif: [source.classId],\n        Bildirim_Turu: \"Risk Sinyali\",\n        Mesaj: `${source.studentName} için ${source.signalType} sinyali oluşturuldu. Önem: ${source.importance}.`,\n        Onem_Derecesi: source.importance === \"Kritik\" ? \"Yüksek\" : source.importance === \"Yuksek\" ? \"Yüksek\" : \"Orta\",\n        Okundu_Mu: false,\n        Gonderildi_Mi: true,\n        Kanal: \"E-posta + Webhook\",\n      },\n      emailTo: source.teacherEmail,\n      emailSubject: `Yeni risk sinyali: ${source.studentName}`,\n      emailHtml: buildEmailHtml({\n        teacherName: source.teacherName,\n        studentName: source.studentName,\n        className: source.className,\n        signalType: source.signalType,\n        importance: source.importance,\n        description: parsed.description,\n        action,\n        trackingCode: source.trackingCode,\n      }),\n    },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        0
+      ],
+      "id": "28682445-c7e2-4f2d-b5b5-9c9fe4994102",
+      "name": "Prepare Risk Signal Records"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXLgrVIjnJcjQqo",
+          "mode": "list",
+          "cachedResultName": "Risk_Sinyalleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblXLgrVIjnJcjQqo"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Sinyal_Adi": "={{ $json.fields.Sinyal_Adi }}",
+            "Ogrenci": "={{ $json.fields.Ogrenci }}",
+            "Sinif": "={{ $json.fields.Sinif }}",
+            "Ozet": "={{ $json.fields.Ozet }}",
+            "Sinyal_Turu": "={{ $json.fields.Sinyal_Turu }}",
+            "Risk_Puani": "={{ $json.fields.Risk_Puani }}",
+            "Onem_Derecesi": "={{ $json.fields.Onem_Derecesi }}",
+            "Aciklama": "={{ $json.fields.Aciklama }}",
+            "Onerilen_Aksiyon": "={{ $json.fields.Onerilen_Aksiyon }}",
+            "Durum": "={{ $json.fields.Durum }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Sinyal_Adi",
+              "displayName": "Sinyal_Adi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ogrenci",
+              "displayName": "Ogrenci",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ozet",
+              "displayName": "Ozet",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinyal_Turu",
+              "displayName": "Sinyal_Turu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Ani Not Dususu",
+                  "value": "Ani Not Dususu"
+                },
+                {
+                  "name": "Devamsizlik Artisi",
+                  "value": "Devamsizlik Artisi"
+                },
+                {
+                  "name": "Odev Teslim Azalmasi",
+                  "value": "Odev Teslim Azalmasi"
+                },
+                {
+                  "name": "Dusuk Ortalama",
+                  "value": "Dusuk Ortalama"
+                },
+                {
+                  "name": "Sinif Ortalamasindan Uzaklasma",
+                  "value": "Sinif Ortalamasindan Uzaklasma"
+                },
+                {
+                  "name": "Gec Teslim Artisi",
+                  "value": "Gec Teslim Artisi"
+                },
+                {
+                  "name": "Ders Katilimi Dusuk",
+                  "value": "Ders Katilimi Dusuk"
+                },
+                {
+                  "name": "Genel Akademik Risk",
+                  "value": "Genel Akademik Risk"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Risk_Puani",
+              "displayName": "Risk_Puani",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Onem_Derecesi",
+              "displayName": "Onem_Derecesi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Dusuk",
+                  "value": "Dusuk"
+                },
+                {
+                  "name": "Orta",
+                  "value": "Orta"
+                },
+                {
+                  "name": "Yuksek",
+                  "value": "Yuksek"
+                },
+                {
+                  "name": "Kritik",
+                  "value": "Kritik"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aciklama",
+              "displayName": "Aciklama",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Onerilen_Aksiyon",
+              "displayName": "Onerilen_Aksiyon",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Durum",
+              "displayName": "Durum",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Yeni",
+                  "value": "Yeni"
+                },
+                {
+                  "name": "Inceleniyor",
+                  "value": "Inceleniyor"
+                },
+                {
+                  "name": "Cozuldu",
+                  "value": "Cozuldu"
+                },
+                {
+                  "name": "Yok Sayildi",
+                  "value": "Yok Sayildi"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tespit_Tarihi",
+              "displayName": "Tespit_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Cozum_Tarihi",
+              "displayName": "Cozum_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mudahale_Planlari",
+              "displayName": "Mudahale_Planlari",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        0
+      ],
+      "id": "d21d7543-ae41-4f82-a601-1e51490da2b4",
+      "name": "CREATE Risk Signals",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Okundu_Mu": "={{ $json.notificationFields.Okundu_Mu }}",
+            "Gonderildi_Mi": "={{ $json.notificationFields.Gonderildi_Mi }}",
+            "Bildirim_Basligi": "={{ $json.notificationFields.Bildirim_Basligi }}",
+            "Alici": "={{ $json.notificationFields.Alici }}",
+            "Sinif": "={{ $json.notificationFields.Sinif }}",
+            "Bildirim_Turu": "={{ $json.notificationFields.Bildirim_Turu }}",
+            "Mesaj": "={{ $json.notificationFields.Mesaj }}",
+            "Onem_Derecesi": "={{ $json.notificationFields.Onem_Derecesi }}",
+            "Kanal": "={{ $json.notificationFields.Kanal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Bildirim_Basligi",
+              "displayName": "Bildirim_Basligi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Alici",
+              "displayName": "Alici",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Bildirim_Turu",
+              "displayName": "Bildirim_Turu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Katilim Istegi",
+                  "value": "Katilim Istegi"
+                },
+                {
+                  "name": "Odev Hatirlatma",
+                  "value": "Odev Hatirlatma"
+                },
+                {
+                  "name": "Risk Uyarisi",
+                  "value": "Risk Uyarisi"
+                },
+                {
+                  "name": "Haftalik Rapor",
+                  "value": "Haftalik Rapor"
+                },
+                {
+                  "name": "Mudahale Plani",
+                  "value": "Mudahale Plani"
+                },
+                {
+                  "name": "Sistem",
+                  "value": "Sistem"
+                },
+                {
+                  "name": "Ödev Hatırlatma",
+                  "value": "Ödev Hatırlatma"
+                },
+                {
+                  "name": "Devamsızlık Uyarısı",
+                  "value": "Devamsızlık Uyarısı"
+                },
+                {
+                  "name": "Katılım İsteği",
+                  "value": "Katılım İsteği"
+                },
+                {
+                  "name": "Not Bildirimi",
+                  "value": "Not Bildirimi"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mesaj",
+              "displayName": "Mesaj",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Onem_Derecesi",
+              "displayName": "Onem_Derecesi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Dusuk",
+                  "value": "Dusuk"
+                },
+                {
+                  "name": "Normal",
+                  "value": "Normal"
+                },
+                {
+                  "name": "Yuksek",
+                  "value": "Yuksek"
+                },
+                {
+                  "name": "Acil",
+                  "value": "Acil"
+                },
+                {
+                  "name": "Orta",
+                  "value": "Orta"
+                },
+                {
+                  "name": "Yüksek",
+                  "value": "Yüksek"
+                },
+                {
+                  "name": "Düşük",
+                  "value": "Düşük"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Okundu_Mu",
+              "displayName": "Okundu_Mu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Gonderildi_Mi",
+              "displayName": "Gonderildi_Mi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kanal",
+              "displayName": "Kanal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Panel",
+                  "value": "Panel"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "n8n",
+                  "value": "n8n"
+                },
+                {
+                  "name": "Webhook",
+                  "value": "Webhook"
+                },
+                {
+                  "name": "E-posta + Webhook",
+                  "value": "E-posta + Webhook"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Olusturma_Tarihi",
+              "displayName": "Olusturma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Okunma_Tarihi",
+              "displayName": "Okunma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        0
+      ],
+      "id": "4baf7e23-9eb8-4039-9807-cb912171eb2f",
+      "name": "CREATE Bildirimler",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toRecipients": "={{ $('Prepare Risk Signal Records').item.json.emailTo }}",
+        "subject": "={{ $('Prepare Risk Signal Records').item.json.emailSubject }}",
+        "bodyContent": "={{ $('Prepare Risk Signal Records').item.json.emailHtml }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        0
+      ],
+      "id": "6606b0d3-d2fe-487b-8f48-ea2e1cee9cb0",
+      "name": "Send a message",
+      "webhookId": "b7fdff00-8650-4753-83b8-1b467ffb9fcd",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "rRBPLsQG9BKgLD0f",
+          "name": "Microsoft Outlook OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Student Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Student Summaries": {
+      "main": [
+        [
+          {
+            "node": "GET Predictions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Predictions": {
+      "main": [
+        [
+          {
+            "node": "GET Existing Risk Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Existing Risk Signals": {
+      "main": [
+        [
+          {
+            "node": "GET Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Users": {
+      "main": [
+        [
+          {
+            "node": "GET Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Classes": {
+      "main": [
+        [
+          {
+            "node": "Prepare Risk Signal Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Risk Signal Candidates": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter Risk Signal Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Risk Signal Text": {
+      "main": [
+        [
+          {
+            "node": "Prepare Risk Signal Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Risk Signal Records": {
+      "main": [
+        [
+          {
+            "node": "CREATE Risk Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE Risk Signals": {
+      "main": [
+        [
+          {
+            "node": "CREATE Bildirimler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE Bildirimler": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2b350ee3-038b-41da-aeda-7254b8cf8f95",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e2bde2dbbeefbb35f48db0652f17c950032866c2c8e98282f235b1ad2f98610"
+  },
+  "id": "zqxuCdDn3eIAUGby",
+  "tags": []
+}

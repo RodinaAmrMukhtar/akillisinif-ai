@@ -1,0 +1,564 @@
+{
+  "name": "05 - Not İlan Edildi Öğrenci Bildirimi ve E-posta",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e4e21803-d3db-4b2d-9155-df25414a7196",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblPzFF2DhNkAhVdY",
+          "mode": "list",
+          "cachedResultName": "Notlar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblPzFF2DhNkAhVdY"
+        },
+        "filterByFormula": "=={{ `AND(  {Yayin_Durumu}='Yayinda',  {Puan},  OR(    {Not_Turu}='Vize',    {Not_Turu}='Final',    {Not_Turu}='Laboratuvar',    {Not_Turu}='Ortalama'  ))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7db55565-2038-466c-8885-04b5d64db114",
+      "name": "GET Published Grades",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl9ZKwmWAW0cM6Ge",
+          "mode": "list",
+          "cachedResultName": "Kullanicilar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl9ZKwmWAW0cM6Ge"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "4c6f9fa7-4dd1-42a6-88a9-be49f78e8bb2",
+      "name": "GET Users",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8cYm3VAc7eegJK",
+          "mode": "list",
+          "cachedResultName": "Siniflar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl8cYm3VAc7eegJK"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "2badba25-d6f1-4188-9dbc-81d6c6ee1350",
+      "name": "GET Classes",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "filterByFormula": "=={{ `OR(  FIND('NOT:', {Mesaj}),  FIND('Not ilan edildi', {Bildirim_Basligi}),  FIND('Yeni not yayınlandı', {Bildirim_Basligi}),  FIND('Yeni not yayında', {Bildirim_Basligi}))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "5de7c46d-c8b2-449d-b751-e5a630ab8023",
+      "name": "GET Existing Grade Notifications",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeRecord(json) {\n  if (!json) return null;\n\n  if (Array.isArray(json.records)) {\n    return json.records.map(normalizeRecord).filter(Boolean);\n  }\n\n  if (json.fields) {\n    return {\n      id: json.id || json.recordId,\n      fields: json.fields,\n    };\n  }\n\n  const { id, recordId, createdTime, ...rest } = json;\n\n  return {\n    id: id || recordId,\n    fields: rest,\n  };\n}\n\nfunction getRecords(nodeName) {\n  const items = $items(nodeName) || [];\n  const records = [];\n\n  for (const item of items) {\n    const normalized = normalizeRecord(item.json);\n\n    if (Array.isArray(normalized)) {\n      records.push(...normalized);\n    } else if (normalized) {\n      records.push(normalized);\n    }\n  }\n\n  return records.filter((record) => record.id);\n}\n\nfunction asLinks(value) {\n  if (!value) return [];\n\n  if (Array.isArray(value)) {\n    return value\n      .map((item) => {\n        if (typeof item === \"string\") return item;\n        if (item?.id) return item.id;\n        if (item?.recordId) return item.recordId;\n        return String(item || \"\");\n      })\n      .map((item) => item.trim())\n      .filter(Boolean);\n  }\n\n  if (typeof value === \"string\") {\n    return [value.trim()].filter(Boolean);\n  }\n\n  return [];\n}\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction getNumber(value) {\n  const numberValue = Number(value);\n  return Number.isFinite(numberValue) ? numberValue : null;\n}\n\nfunction formatDate(value) {\n  if (!value) return \"-\";\n\n  try {\n    return new Date(value).toLocaleDateString(\"tr-TR\", {\n      day: \"2-digit\",\n      month: \"long\",\n      year: \"numeric\",\n    });\n  } catch {\n    return value;\n  }\n}\n\nfunction sortGradeType(type) {\n  const order = {\n    Vize: 1,\n    Laboratuvar: 2,\n    Final: 3,\n    Ortalama: 4,\n  };\n\n  return order[type] || 99;\n}\n\nfunction buildGradeListHtml(grades) {\n  const rows = grades\n    .sort((a, b) => sortGradeType(a.type) - sortGradeType(b.type))\n    .map((grade) => {\n      return `\n<tr>\n  <td style=\"padding:12px;border-bottom:1px solid #e2e8f0;color:#0f172a;font-weight:700;\">\n    ${grade.type}\n  </td>\n  <td style=\"padding:12px;border-bottom:1px solid #e2e8f0;color:#0f172a;\">\n    ${grade.score}/${grade.maxPoint || 100}\n  </td>\n  <td style=\"padding:12px;border-bottom:1px solid #e2e8f0;color:#64748b;\">\n    ${formatDate(grade.publishDate || grade.date)}\n  </td>\n</tr>`;\n    })\n    .join(\"\");\n\n  return `\n<table style=\"width:100%;border-collapse:collapse;margin-top:14px;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;\">\n  <thead>\n    <tr style=\"background:#f8fafc;\">\n      <th style=\"padding:12px;text-align:left;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px;\">Not Türü</th>\n      <th style=\"padding:12px;text-align:left;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px;\">Puan</th>\n      <th style=\"padding:12px;text-align:left;color:#475569;font-size:12px;text-transform:uppercase;letter-spacing:1px;\">Yayın Tarihi</th>\n    </tr>\n  </thead>\n  <tbody>\n    ${rows}\n  </tbody>\n</table>`;\n}\n\nfunction buildEmailHtml({\n  studentName,\n  className,\n  grades,\n  trackingCodesText,\n}) {\n  const averageGrade = grades.find((grade) => grade.type === \"Ortalama\");\n  const averageText = averageGrade\n    ? `${averageGrade.score}/${averageGrade.maxPoint || 100}`\n    : \"Henüz hesaplanmadı\";\n\n  return `\n<div style=\"font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;padding:32px;\">\n  <div style=\"max-width:680px;margin:auto;background:white;border-radius:24px;overflow:hidden;border:1px solid #e2e8f0;\">\n    <div style=\"background:#0f172a;color:white;padding:28px 32px;\">\n      <div style=\"font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#bfdbfe;font-weight:700;\">\n        AkıllıSınıf AI\n      </div>\n      <h1 style=\"margin:12px 0 0;font-size:28px;line-height:1.2;color:#ffffff;\">\n        Yeni Notlar Yayında\n      </h1>\n      <p style=\"margin:12px 0 0;color:#dbeafe;font-size:15px;line-height:1.6;\">\n        Bu bildirim, öğretmeniniz notları ilan ettikten sonra otomatik oluşturulmuştur.\n      </p>\n    </div>\n\n    <div style=\"padding:32px;color:#0f172a;\">\n      <p style=\"margin:0 0 16px;font-size:16px;line-height:1.7;\">\n        Merhaba <strong>${studentName}</strong>,\n      </p>\n\n      <p style=\"margin:0 0 20px;font-size:16px;line-height:1.7;\">\n        <strong>${className}</strong> sınıfı için yeni notlarınız yayınlandı.\n      </p>\n\n      <div style=\"margin:22px 0;padding:18px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;\">\n        <p style=\"margin:0;color:#1d4ed8;font-size:12px;text-transform:uppercase;font-weight:700;letter-spacing:1px;\">\n          Ortalama\n        </p>\n        <p style=\"margin:8px 0 0;font-size:26px;font-weight:800;color:#1e3a8a;\">\n          ${averageText}\n        </p>\n      </div>\n\n      ${buildGradeListHtml(grades)}\n\n      <p style=\"margin:22px 0 0;font-size:15px;line-height:1.7;color:#475569;\">\n        Notlarınızı AkıllıSınıf AI öğrenci panelinizden de inceleyebilirsiniz.\n      </p>\n\n      <div style=\"margin-top:28px;padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.6;\">\n        Sistem takip kodları:<br/>\n        ${trackingCodesText}\n      </div>\n    </div>\n\n    <div style=\"background:#f8fafc;padding:20px 32px;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.6;\">\n      AkıllıSınıf AI · Yapay Zekâ Destekli Sınıf Performans ve Erken Uyarı Sistemi\n    </div>\n  </div>\n</div>\n`;\n}\n\nconst grades = getRecords(\"GET Published Grades\");\nconst users = getRecords(\"GET Users\");\nconst classes = getRecords(\"GET Classes\");\nconst existingNotifications = getRecords(\"GET Existing Grade Notifications\");\n\nconst existingMessages = existingNotifications\n  .map((notification) => getString(notification.fields.Mesaj))\n  .join(\"\\n\");\n\nconst groups = new Map();\n\nfor (const grade of grades) {\n  const studentId = asLinks(grade.fields.Ogrenci)[0];\n  const classId = asLinks(grade.fields.Sinif)[0];\n\n  if (!studentId || !classId) continue;\n\n  const type = getString(grade.fields.Not_Turu);\n  const score = getNumber(grade.fields.Puan);\n  const maxPoint = getNumber(grade.fields.Maksimum_Puan) || 100;\n\n  if (!type || score === null) continue;\n\n  const trackingCode = `NOT:${grade.id}:ALICI:${studentId}`;\n\n  if (existingMessages.includes(trackingCode)) {\n    continue;\n  }\n\n  const student = users.find((user) => user.id === studentId);\n  const classRecord = classes.find((item) => item.id === classId);\n\n  const studentName = getString(student?.fields?.Ad_Soyad) || \"Öğrenci\";\n  const studentEmail = getString(student?.fields?.Eposta);\n  const className =\n    getString(classRecord?.fields?.Sinif_Adi) ||\n    getString(classRecord?.fields?.Ders_Adi) ||\n    \"Sınıf\";\n\n  if (!studentEmail) continue;\n\n  const groupKey = `${studentId}:${classId}`;\n\n  if (!groups.has(groupKey)) {\n    groups.set(groupKey, {\n      studentId,\n      classId,\n      studentName,\n      studentEmail,\n      className,\n      grades: [],\n      trackingCodes: [],\n    });\n  }\n\n  const group = groups.get(groupKey);\n\n  group.grades.push({\n    id: grade.id,\n    type,\n    score,\n    maxPoint,\n    date: getString(grade.fields.Tarih),\n    publishDate: getString(grade.fields.Yayin_Tarihi),\n    trackingCode,\n  });\n\n  group.trackingCodes.push(trackingCode);\n}\n\nconst output = [];\n\nfor (const group of groups.values()) {\n  if (group.grades.length === 0) continue;\n\n  const gradeSummaryText = group.grades\n    .sort((a, b) => sortGradeType(a.type) - sortGradeType(b.type))\n    .map((grade) => `${grade.type}: ${grade.score}/${grade.maxPoint || 100}`)\n    .join(\", \");\n\n  const trackingCodesText = group.trackingCodes.join(\"<br/>\");\n  const trackingCodesPlain = group.trackingCodes.join(\"\\n\");\n\n  const message =\n    `Merhaba ${group.studentName}, ${group.className} sınıfı için yeni notlarınız yayınlandı. ` +\n    `Yayınlanan notlar: ${gradeSummaryText}.\\n\\n` +\n    `Sistem takip kodları:\\n${trackingCodesPlain}`;\n\n  const emailSubject = `Yeni notlar yayınlandı: ${group.className}`;\n\n  const emailHtml = buildEmailHtml({\n    studentName: group.studentName,\n    className: group.className,\n    grades: group.grades,\n    trackingCodesText,\n  });\n\n  output.push({\n    json: {\n      emailTo: group.studentEmail,\n      emailSubject,\n      emailHtml,\n      studentName: group.studentName,\n      className: group.className,\n      gradeSummaryText,\n      trackingCodesPlain,\n      fields: {\n        Bildirim_Basligi: \"Not ilan edildi\",\n        Alici: [group.studentId],\n        Sinif: [group.classId],\n        Bildirim_Turu: \"Not Bildirimi\",\n        Mesaj: message,\n        Onem_Derecesi: \"Orta\",\n        Okundu_Mu: false,\n        Gonderildi_Mi: true,\n        Kanal: \"E-posta + Webhook\",\n      },\n    },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "3dc655de-a5cd-460a-891f-7ed2e9ed63ca",
+      "name": "Prepare Grade Publish Notifications"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Okundu_Mu": "={{ $json.fields.Okundu_Mu }}",
+            "Gonderildi_Mi": "={{ $json.fields.Gonderildi_Mi }}",
+            "Bildirim_Basligi": "={{ $json.fields.Bildirim_Basligi }}",
+            "Alici": "={{ $json.fields.Alici }}",
+            "Sinif": "={{ $json.fields.Sinif }}",
+            "Bildirim_Turu": "={{ $json.fields.Bildirim_Turu }}",
+            "Mesaj": "={{ $json.fields.Mesaj }}",
+            "Onem_Derecesi": "={{ $json.fields.Onem_Derecesi }}",
+            "Kanal": "={{ $json.fields.Kanal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Bildirim_Basligi",
+              "displayName": "Bildirim_Basligi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Alici",
+              "displayName": "Alici",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Bildirim_Turu",
+              "displayName": "Bildirim_Turu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Katilim Istegi",
+                  "value": "Katilim Istegi"
+                },
+                {
+                  "name": "Odev Hatirlatma",
+                  "value": "Odev Hatirlatma"
+                },
+                {
+                  "name": "Risk Uyarisi",
+                  "value": "Risk Uyarisi"
+                },
+                {
+                  "name": "Haftalik Rapor",
+                  "value": "Haftalik Rapor"
+                },
+                {
+                  "name": "Mudahale Plani",
+                  "value": "Mudahale Plani"
+                },
+                {
+                  "name": "Sistem",
+                  "value": "Sistem"
+                },
+                {
+                  "name": "Ödev Hatırlatma",
+                  "value": "Ödev Hatırlatma"
+                },
+                {
+                  "name": "Devamsızlık Uyarısı",
+                  "value": "Devamsızlık Uyarısı"
+                },
+                {
+                  "name": "Katılım İsteği",
+                  "value": "Katılım İsteği"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mesaj",
+              "displayName": "Mesaj",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Onem_Derecesi",
+              "displayName": "Onem_Derecesi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Dusuk",
+                  "value": "Dusuk"
+                },
+                {
+                  "name": "Normal",
+                  "value": "Normal"
+                },
+                {
+                  "name": "Yuksek",
+                  "value": "Yuksek"
+                },
+                {
+                  "name": "Acil",
+                  "value": "Acil"
+                },
+                {
+                  "name": "Orta",
+                  "value": "Orta"
+                },
+                {
+                  "name": "Yüksek",
+                  "value": "Yüksek"
+                },
+                {
+                  "name": "Düşük",
+                  "value": "Düşük"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Okundu_Mu",
+              "displayName": "Okundu_Mu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Gonderildi_Mi",
+              "displayName": "Gonderildi_Mi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kanal",
+              "displayName": "Kanal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Panel",
+                  "value": "Panel"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "n8n",
+                  "value": "n8n"
+                },
+                {
+                  "name": "Webhook",
+                  "value": "Webhook"
+                },
+                {
+                  "name": "E-posta + Webhook",
+                  "value": "E-posta + Webhook"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Olusturma_Tarihi",
+              "displayName": "Olusturma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Okunma_Tarihi",
+              "displayName": "Okunma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "24756211-c6f4-4f22-8886-e11265fcb296",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toRecipients": "={{ $('Prepare Grade Publish Notifications').item.json.emailTo }}",
+        "subject": "={{ $('Prepare Grade Publish Notifications').item.json.emailSubject }}",
+        "bodyContent": "={{ $('Prepare Grade Publish Notifications').item.json.emailHtml }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "1492bc07-5237-4ac7-abab-c1e9f5e1e67e",
+      "name": "Send a message",
+      "webhookId": "69338174-2a59-4362-829c-a9e05fee80a0",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "rRBPLsQG9BKgLD0f",
+          "name": "Microsoft Outlook OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Published Grades",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Published Grades": {
+      "main": [
+        [
+          {
+            "node": "GET Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Users": {
+      "main": [
+        [
+          {
+            "node": "GET Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Classes": {
+      "main": [
+        [
+          {
+            "node": "GET Existing Grade Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Existing Grade Notifications": {
+      "main": [
+        [
+          {
+            "node": "Prepare Grade Publish Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Grade Publish Notifications": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "42cdf21c-7c06-42ba-ab2a-548e98e8d736",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e2bde2dbbeefbb35f48db0652f17c950032866c2c8e98282f235b1ad2f98610"
+  },
+  "id": "L4VpYpattDrwhyxi",
+  "tags": []
+}

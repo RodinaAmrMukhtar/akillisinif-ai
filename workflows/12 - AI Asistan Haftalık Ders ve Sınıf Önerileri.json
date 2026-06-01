@@ -1,0 +1,1214 @@
+{
+  "name": "12 - AI Asistan Haftalık Ders ve Sınıf Önerileri",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "09a03069-10b4-4602-87f8-8b9b799cb4bd",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8cYm3VAc7eegJK",
+          "mode": "list",
+          "cachedResultName": "Siniflar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl8cYm3VAc7eegJK"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7e7eb2b3-5267-48fd-a3b4-47e500e6588f",
+      "name": "GET Classes",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl9ZKwmWAW0cM6Ge",
+          "mode": "list",
+          "cachedResultName": "Kullanicilar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl9ZKwmWAW0cM6Ge"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "5af39a52-949b-42df-b65b-a9bc1d4f8889",
+      "name": "GET Users",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblelK5QB3Fo9lRem",
+          "mode": "list",
+          "cachedResultName": "Sinif_Uyelikleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblelK5QB3Fo9lRem"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "c6f4ff92-0c15-4f9e-bb79-04bb015c0282",
+      "name": "GET Memberships",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblPzFF2DhNkAhVdY",
+          "mode": "list",
+          "cachedResultName": "Notlar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblPzFF2DhNkAhVdY"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        0
+      ],
+      "id": "5ff53317-7116-4053-850c-26c19695fd81",
+      "name": "GET Grades",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDo2X1HRX1QeNq0",
+          "mode": "list",
+          "cachedResultName": "Odevler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblDo2X1HRX1QeNq0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "7ecbe01d-c853-47f4-8d05-a094058fdfed",
+      "name": "GET Assignments",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluklP9rV0pZiFn7",
+          "mode": "list",
+          "cachedResultName": "Odev_Teslimleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbluklP9rV0pZiFn7"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        0
+      ],
+      "id": "1fb29066-748a-490a-8ce2-4a970a4f0e9c",
+      "name": "GET Submissions",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblPyYUClplfmSC7f",
+          "mode": "list",
+          "cachedResultName": "Yoklamalar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblPyYUClplfmSC7f"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1440,
+        0
+      ],
+      "id": "42987f8c-3db3-464e-89fd-136518d8bee4",
+      "name": "GET Attendance",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWkpy5SabmxCF5r",
+          "mode": "list",
+          "cachedResultName": "Tahminler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblWkpy5SabmxCF5r"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "285db1a5-d49d-49ee-8ac8-d4ee9f007422",
+      "name": "GET Predictions",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblqVSO23KjBVbUAq",
+          "mode": "list",
+          "cachedResultName": "Ogrenci_Ozetleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblqVSO23KjBVbUAq"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        0
+      ],
+      "id": "be77f43b-6cb1-4763-a246-13342783273c",
+      "name": "GET Student Summaries",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblXLgrVIjnJcjQqo",
+          "mode": "list",
+          "cachedResultName": "Risk_Sinyalleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblXLgrVIjnJcjQqo"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2064,
+        0
+      ],
+      "id": "c24d435e-f327-4bb8-ab90-2cbb17641907",
+      "name": "GET Risk Signals",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblZZJKuv40HInuSl",
+          "mode": "list",
+          "cachedResultName": "Haftalik_Raporlar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblZZJKuv40HInuSl"
+        },
+        "filterByFormula": "={{ `FIND('AI_ASISTAN_HAFTALIK_ONERI:', {Rapor_Metni})` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2272,
+        0
+      ],
+      "id": "b76241c9-a537-4118-9e24-9e8a4110788c",
+      "name": "GET Existing Weekly Assistant Reports",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeRecord(json) {\n  if (!json) return null;\n\n  if (Array.isArray(json.records)) {\n    return json.records.map(normalizeRecord).filter(Boolean);\n  }\n\n  if (json.fields) {\n    return {\n      id: json.id || json.recordId,\n      fields: json.fields,\n    };\n  }\n\n  const { id, recordId, createdTime, ...rest } = json;\n\n  return {\n    id: id || recordId,\n    fields: rest,\n  };\n}\n\nfunction getRecords(nodeName) {\n  const items = $items(nodeName) || [];\n  const records = [];\n\n  for (const item of items) {\n    const normalized = normalizeRecord(item.json);\n\n    if (Array.isArray(normalized)) {\n      records.push(...normalized);\n    } else if (normalized) {\n      records.push(normalized);\n    }\n  }\n\n  return records.filter((record) => record.id);\n}\n\nfunction asLinks(value) {\n  if (!value) return [];\n\n  if (Array.isArray(value)) {\n    return value\n      .map((item) => {\n        if (typeof item === \"string\") return item;\n        if (item?.id) return item.id;\n        if (item?.recordId) return item.recordId;\n        return String(item || \"\");\n      })\n      .map((item) => item.trim())\n      .filter(Boolean);\n  }\n\n  if (typeof value === \"string\") {\n    return [value.trim()].filter(Boolean);\n  }\n\n  return [];\n}\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction getNumber(value) {\n  const numberValue = Number(value);\n  return Number.isFinite(numberValue) ? numberValue : null;\n}\n\nfunction normalize(value) {\n  return getString(value)\n    .toLowerCase()\n    .replaceAll(\"ı\", \"i\")\n    .replaceAll(\"ğ\", \"g\")\n    .replaceAll(\"ü\", \"u\")\n    .replaceAll(\"ş\", \"s\")\n    .replaceAll(\"ö\", \"o\")\n    .replaceAll(\"ç\", \"c\")\n    .trim();\n}\n\nfunction average(numbers) {\n  const valid = numbers.filter((value) => value !== null && Number.isFinite(value));\n  if (valid.length === 0) return null;\n\n  return Math.round(\n    (valid.reduce((sum, value) => sum + value, 0) / valid.length) * 100,\n  ) / 100;\n}\n\nfunction getWeekDates() {\n  const now = new Date();\n  const day = now.getDay();\n  const diffToMonday = day === 0 ? -6 : 1 - day;\n\n  const monday = new Date(now);\n  monday.setDate(now.getDate() + diffToMonday);\n\n  const sunday = new Date(monday);\n  sunday.setDate(monday.getDate() + 6);\n\n  return {\n    start: monday.toISOString().slice(0, 10),\n    end: sunday.toISOString().slice(0, 10),\n    key: `${monday.toISOString().slice(0, 10)}_${sunday.toISOString().slice(0, 10)}`,\n  };\n}\n\nfunction isPresent(value) {\n  const status = normalize(value);\n  return status === \"geldi\" || status === \"gec geldi\" || status === \"geç geldi\";\n}\n\nfunction riskCount(predictions, riskName) {\n  const wanted = normalize(riskName);\n  return predictions.filter((prediction) => normalize(prediction.fields.Risk_Seviyesi) === wanted).length;\n}\n\nfunction getTeacherName(users, teacherId) {\n  const teacher = users.find((user) => user.id === teacherId);\n  return getString(teacher?.fields?.Ad_Soyad) || \"Öğretmen\";\n}\n\nfunction getTeacherEmail(users, teacherId) {\n  const teacher = users.find((user) => user.id === teacherId);\n  return getString(teacher?.fields?.Eposta);\n}\n\nconst classes = getRecords(\"GET Classes\");\nconst users = getRecords(\"GET Users\");\nconst memberships = getRecords(\"GET Memberships\");\nconst grades = getRecords(\"GET Grades\");\nconst assignments = getRecords(\"GET Assignments\");\nconst submissions = getRecords(\"GET Submissions\");\nconst attendance = getRecords(\"GET Attendance\");\nconst predictions = getRecords(\"GET Predictions\");\nconst summaries = getRecords(\"GET Student Summaries\");\nconst riskSignals = getRecords(\"GET Risk Signals\");\nconst existingReports = getRecords(\"GET Existing Weekly Assistant Reports\");\n\nconst week = getWeekDates();\n\nconst existingReportText = existingReports\n  .map((report) => getString(report.fields.Rapor_Metni))\n  .join(\"\\n\");\n\nconst output = [];\n\nfor (const classRecord of classes) {\n  const classId = classRecord.id;\n  const teacherId = asLinks(classRecord.fields.Ogretmen)[0];\n\n  if (!teacherId) continue;\n\n  const teacherName = getTeacherName(users, teacherId);\n  const teacherEmail = getTeacherEmail(users, teacherId);\n\n  if (!teacherEmail) continue;\n\n  const className =\n    getString(classRecord.fields.Sinif_Adi) ||\n    getString(classRecord.fields.Ders_Adi) ||\n    \"Sınıf\";\n\n  const trackingCode = `AI_ASISTAN_HAFTALIK_ONERI:${week.key}:SINIF:${classId}:OGRETMEN:${teacherId}`;\n\n  if (existingReportText.includes(trackingCode)) {\n    continue;\n  }\n\n  const classMemberships = memberships.filter((membership) =>\n    asLinks(membership.fields.Sinif).includes(classId),\n  );\n\n  const activeStudentMemberships = classMemberships.filter((membership) => {\n    const role = normalize(membership.fields.Uyelik_Rolu);\n    const status = normalize(membership.fields.Durum);\n    return role === \"ogrenci\" && status === \"aktif\";\n  });\n\n  const classGrades = grades.filter((grade) =>\n    asLinks(grade.fields.Sinif).includes(classId),\n  );\n\n  const classGradeAverage = average(\n    classGrades.map((grade) => getNumber(grade.fields.Puan)),\n  );\n\n  const classAssignments = assignments.filter((assignment) =>\n    asLinks(assignment.fields.Sinif).includes(classId),\n  );\n\n  const classSubmissions = submissions.filter((submission) =>\n    asLinks(submission.fields.Sinif).includes(classId),\n  );\n\n  const deliveryRate =\n    classAssignments.length > 0 && activeStudentMemberships.length > 0\n      ? Math.round(\n          (classSubmissions.length /\n            (classAssignments.length * activeStudentMemberships.length)) *\n            10000,\n        ) / 100\n      : null;\n\n  const classAttendance = attendance.filter((record) =>\n    asLinks(record.fields.Sinif).includes(classId),\n  );\n\n  const presentCount = classAttendance.filter((record) =>\n    isPresent(record.fields.Durum),\n  ).length;\n\n  const attendanceRate =\n    classAttendance.length > 0\n      ? Math.round((presentCount / classAttendance.length) * 10000) / 100\n      : null;\n\n  const classPredictions = predictions.filter((prediction) =>\n    asLinks(prediction.fields.Sinif).includes(classId),\n  );\n\n  const lowRisk = riskCount(classPredictions, \"Düşük\");\n  const mediumRisk = riskCount(classPredictions, \"Orta\");\n  const highRisk = riskCount(classPredictions, \"Yüksek\");\n  const criticalRisk = riskCount(classPredictions, \"Kritik\");\n\n  const highRiskStudents = classPredictions\n    .filter((prediction) => {\n      const risk = normalize(prediction.fields.Risk_Seviyesi);\n      return risk === \"yuksek\" || risk === \"yüksek\" || risk === \"kritik\";\n    })\n    .map((prediction) => {\n      const studentId = asLinks(prediction.fields.Ogrenci)[0];\n      const student = users.find((user) => user.id === studentId);\n      return {\n        name: getString(student?.fields?.Ad_Soyad) || \"Öğrenci\",\n        risk: getString(prediction.fields.Risk_Seviyesi),\n        summary:\n          getString(prediction.fields.Ozet) ||\n          getString(prediction.fields.Ogretmene_Gosterilecek),\n      };\n    });\n\n  const classSummaries = summaries.filter((summary) =>\n    asLinks(summary.fields.Sinif).includes(classId),\n  );\n\n  const classRiskSignals = riskSignals.filter((signal) =>\n    asLinks(signal.fields.Sinif).includes(classId),\n  );\n\n  const commonRiskReasons = classRiskSignals\n    .map((signal) => getString(signal.fields.Sinyal_Turu) || getString(signal.fields.Sinyal_Adi))\n    .filter(Boolean)\n    .slice(0, 6)\n    .join(\", \");\n\n  const dataSummary = [\n    `Sınıf: ${className}`,\n    `Öğretmen: ${teacherName}`,\n    `Hafta: ${week.start} - ${week.end}`,\n    `Aktif öğrenci sayısı: ${activeStudentMemberships.length}`,\n    `Sınıf not ortalaması: ${classGradeAverage === null ? \"Yok\" : classGradeAverage}`,\n    `Ödev sayısı: ${classAssignments.length}`,\n    `Toplam teslim kaydı: ${classSubmissions.length}`,\n    `Tahmini ödev teslim oranı: ${deliveryRate === null ? \"Yok\" : `${deliveryRate}%`}`,\n    `Yoklama kaydı: ${classAttendance.length}`,\n    `Yoklama katılım oranı: ${attendanceRate === null ? \"Yok\" : `${attendanceRate}%`}`,\n    `AI tahmin sayısı: ${classPredictions.length}`,\n    `Düşük risk: ${lowRisk}`,\n    `Orta risk: ${mediumRisk}`,\n    `Yüksek risk: ${highRisk}`,\n    `Kritik risk: ${criticalRisk}`,\n    `Risk sinyali sayısı: ${classRiskSignals.length}`,\n    `En yaygın risk nedenleri: ${commonRiskReasons || \"Yok\"}`,\n    \"\",\n    \"Yüksek/Kritik riskteki öğrenciler:\",\n    highRiskStudents.length > 0\n      ? highRiskStudents\n          .map((student) => `${student.name} - ${student.risk} - ${student.summary || \"-\"}`)\n          .join(\"\\n\")\n      : \"Yok\",\n    \"\",\n    \"Son öğrenci özetlerinden örnekler:\",\n    classSummaries\n      .slice(0, 5)\n      .map((summary) => getString(summary.fields.AI_Onerisi).slice(0, 350))\n      .filter(Boolean)\n      .join(\"\\n---\\n\") || \"Yok\",\n    \"\",\n    `Takip kodu: ${trackingCode}`,\n  ].join(\"\\n\");\n\n  const aiPrompt = `\nSen AkıllıSınıf AI sisteminde çalışan öğretmen karar destek asistanısın.\n\nAşağıdaki haftalık sınıf verilerine göre öğretmene uygulanabilir ders ve sınıf yönetimi önerileri üret.\n\nVeriler:\n${dataSummary}\n\nKurallar:\n- Türkçe yaz.\n- Akademik, net ve öğretmen odaklı ol.\n- Öğrenci isimlerini yalnızca bağlamda varsa kullan.\n- 5-8 maddelik somut öneri ver.\n- Gereksiz uzun yazma.\n- Öğrenciyi suçlayıcı dil kullanma.\n- Çıktıyı düz metin olarak ver; JSON gerekmez.\n`;\n\n  output.push({\n    json: {\n      trackingCode,\n      classId,\n      className,\n      teacherId,\n      teacherName,\n      teacherEmail,\n      weekStart: week.start,\n      weekEnd: week.end,\n      studentCount: activeStudentMemberships.length,\n      lowRisk,\n      mediumRisk,\n      highRisk,\n      criticalRisk,\n      commonRiskReasons,\n      dataSummary,\n      aiPrompt,\n    },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2480,
+        0
+      ],
+      "id": "632ac354-aef2-4209-8e37-5677ab66cc33",
+      "name": "Prepare Weekly Class Advice"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "HTTP-Referer",
+              "value": "https://akillisinif-ai.vercel.app"
+            },
+            {
+              "name": "X-Title",
+              "value": "AkilliSinif AI Weekly Assistant"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n  {\n    model: \"openrouter/free\",\n    messages: [\n      {\n        role: \"system\",\n        content:\n          \"Sen AkıllıSınıf AI için çalışan Türkçe öğretmen karar destek asistanısın.\",\n      },\n      {\n        role: \"user\",\n        content: $json.aiPrompt,\n      },\n    ],\n    temperature: 0.25,\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2688,
+        0
+      ],
+      "id": "6e58401a-a6de-4973-8403-c9cd75fa1a1b",
+      "name": "OpenRouter Weekly Class Advice"
+    },
+    {
+      "parameters": {
+        "jsCode": "function getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction tryParseJson(value) {\n  if (typeof value !== \"string\") return value;\n\n  try {\n    return JSON.parse(value);\n  } catch {\n    return value;\n  }\n}\n\nfunction findTextDeep(value, depth = 0) {\n  if (depth > 8 || value === null || value === undefined) return \"\";\n\n  const parsed = tryParseJson(value);\n\n  if (typeof parsed === \"string\") {\n    return parsed.trim();\n  }\n\n  if (Array.isArray(parsed)) {\n    for (const item of parsed) {\n      const found = findTextDeep(item, depth + 1);\n      if (found) return found;\n    }\n    return \"\";\n  }\n\n  if (typeof parsed === \"object\") {\n    const directCandidates = [\n      parsed?.choices?.[0]?.message?.content,\n      parsed?.body?.choices?.[0]?.message?.content,\n      parsed?.data?.choices?.[0]?.message?.content,\n      parsed?.response?.choices?.[0]?.message?.content,\n      parsed?.message?.content,\n      parsed?.content,\n      parsed?.text,\n      parsed?.answer,\n      parsed?.output,\n      parsed?.body,\n      parsed?.data,\n      parsed?.response,\n    ];\n\n    for (const candidate of directCandidates) {\n      const found = findTextDeep(candidate, depth + 1);\n      if (found) return found;\n    }\n\n    for (const key of Object.keys(parsed)) {\n      const found = findTextDeep(parsed[key], depth + 1);\n      if (found) return found;\n    }\n  }\n\n  return \"\";\n}\n\nfunction buildEmailHtml({ teacherName, className, weekStart, weekEnd, reportText, trackingCode }) {\n  return `\n<div style=\"font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;padding:32px;\">\n  <div style=\"max-width:720px;margin:auto;background:white;border-radius:24px;overflow:hidden;border:1px solid #e2e8f0;\">\n    <div style=\"background:#0f172a;color:white;padding:28px 32px;\">\n      <div style=\"font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#bfdbfe;font-weight:700;\">\n        AkıllıSınıf AI\n      </div>\n      <h1 style=\"margin:12px 0 0;font-size:28px;line-height:1.2;color:#ffffff;\">\n        Haftalık AI Asistan Sınıf Önerileri\n      </h1>\n      <p style=\"margin:12px 0 0;color:#dbeafe;font-size:15px;line-height:1.6;\">\n        ${className} sınıfı için ${weekStart} - ${weekEnd} haftası önerileri.\n      </p>\n    </div>\n\n    <div style=\"padding:32px;color:#0f172a;\">\n      <p style=\"margin:0 0 16px;font-size:16px;line-height:1.7;\">\n        Merhaba <strong>${teacherName}</strong>,\n      </p>\n\n      <div style=\"white-space:pre-wrap;line-height:1.7;font-size:15px;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:20px;\">\n${reportText}\n      </div>\n\n      <div style=\"margin-top:24px;padding:14px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;font-size:12px;\">\n        Sistem takip kodu: ${trackingCode}\n      </div>\n    </div>\n\n    <div style=\"background:#f8fafc;padding:20px 32px;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.6;\">\n      AkıllıSınıf AI · Yapay Zekâ Destekli Sınıf Performans ve Erken Uyarı Sistemi\n    </div>\n  </div>\n</div>\n`;\n}\n\nconst sourceItems = $items(\"Prepare Weekly Class Advice\");\nconst aiItems = $items(\"OpenRouter Weekly Class Advice\");\n\nconst output = [];\n\nfor (let index = 0; index < sourceItems.length; index += 1) {\n  const source = sourceItems[index]?.json || {};\n  const ai = aiItems[index]?.json || {};\n\n  let aiText = findTextDeep(ai);\n\n  if (!aiText || aiText.length < 20) {\n    aiText = [\n      \"AI asistan yanıtı okunamadı; ancak sistem verileri başarıyla analiz edildi.\",\n      \"\",\n      \"Öncelikli öğretmen aksiyonları:\",\n      \"- Risk seviyesi yüksek veya kritik olan öğrenciler için bireysel takip yapılmalı.\",\n      \"- Ödev teslim oranı düşükse eksik ödevler için kısa teslim planı hazırlanmalı.\",\n      \"- Yoklama kayıtları düzenli kontrol edilmeli.\",\n      \"- Not ortalaması düşük öğrenciler için konu bazlı destek verilmelidir.\",\n    ].join(\"\\n\");\n  }\n\n  const reportText = [\n    aiText,\n    \"\",\n    \"Veri Özeti:\",\n    source.dataSummary,\n    \"\",\n    `Sistem takip kodu: ${source.trackingCode}`,\n  ].join(\"\\n\");\n\n  output.push({\n    json: {\n      fields: {\n        Rapor_Adi: `${source.className} - AI Asistan Haftalık Önerileri`,\n        Sinif: [source.classId],\n        Ogretmen: [source.teacherId],\n        Hafta_Baslangic: source.weekStart,\n        Hafta_Bitis: source.weekEnd,\n        Toplam_Ogrenci: source.studentCount,\n        Dusuk_Risk_Sayisi: source.lowRisk,\n        Orta_Risk_Sayisi: source.mediumRisk,\n        Yuksek_Risk_Sayisi: source.highRisk,\n        Kritik_Risk_Sayisi: source.criticalRisk,\n        En_Yaygin_Risk_Nedeni: source.commonRiskReasons || \"Belirgin risk nedeni yok\",\n        Rapor_Metni: reportText,\n        Durum: \"Tamamlandı\",\n      },\n      notificationFields: {\n        Bildirim_Basligi: \"Haftalık AI asistan önerileri hazır\",\n        Alici: [source.teacherId],\n        Sinif: [source.classId],\n        Bildirim_Turu: \"AI Asistan Önerisi\",\n        Mesaj: `${source.className} sınıfı için haftalık AI asistan önerileri hazırlandı.`,\n        Onem_Derecesi: source.highRisk > 0 || source.criticalRisk > 0 ? \"Yüksek\" : \"Orta\",\n        Okundu_Mu: false,\n        Gonderildi_Mi: true,\n        Kanal: \"E-posta + Webhook\",\n      },\n      emailTo: source.teacherEmail,\n      emailSubject: `Haftalık AI sınıf önerileri: ${source.className}`,\n      emailHtml: buildEmailHtml({\n        teacherName: source.teacherName,\n        className: source.className,\n        weekStart: source.weekStart,\n        weekEnd: source.weekEnd,\n        reportText: aiText,\n        trackingCode: source.trackingCode,\n      }),\n    },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2896,
+        0
+      ],
+      "id": "c61acea6-aa30-4ec1-b333-4f824961603d",
+      "name": "Prepare Report Records"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblZZJKuv40HInuSl",
+          "mode": "list",
+          "cachedResultName": "Haftalik_Raporlar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblZZJKuv40HInuSl"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Rapor_Adi": "={{ $json.fields.Rapor_Adi }}",
+            "Sinif": "={{ $json.fields.Sinif }}",
+            "Ogretmen": "={{ $json.fields.Ogretmen }}",
+            "Hafta_Baslangic": "={{ $json.fields.Hafta_Baslangic }}",
+            "Hafta_Bitis": "={{ $json.fields.Hafta_Bitis }}",
+            "Toplam_Ogrenci": "={{ $json.fields.Toplam_Ogrenci }}",
+            "Dusuk_Risk_Sayisi": "={{ $json.fields.Dusuk_Risk_Sayisi }}",
+            "Orta_Risk_Sayisi": "={{ $json.fields.Orta_Risk_Sayisi }}",
+            "Yuksek_Risk_Sayisi": "={{ $json.fields.Yuksek_Risk_Sayisi }}",
+            "Kritik_Risk_Sayisi": "={{ $json.fields.Kritik_Risk_Sayisi }}",
+            "En_Yaygin_Risk_Nedeni": "={{ $json.fields.En_Yaygin_Risk_Nedeni }}",
+            "Rapor_Metni": "={{ $json.fields.Rapor_Metni }}",
+            "Durum": "={{ $json.fields.Durum }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Rapor_Adi",
+              "displayName": "Rapor_Adi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ogretmen",
+              "displayName": "Ogretmen",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Hafta_Baslangic",
+              "displayName": "Hafta_Baslangic",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Hafta_Bitis",
+              "displayName": "Hafta_Bitis",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Toplam_Ogrenci",
+              "displayName": "Toplam_Ogrenci",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Dusuk_Risk_Sayisi",
+              "displayName": "Dusuk_Risk_Sayisi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Orta_Risk_Sayisi",
+              "displayName": "Orta_Risk_Sayisi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Yuksek_Risk_Sayisi",
+              "displayName": "Yuksek_Risk_Sayisi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kritik_Risk_Sayisi",
+              "displayName": "Kritik_Risk_Sayisi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "En_Yaygin_Risk_Nedeni",
+              "displayName": "En_Yaygin_Risk_Nedeni",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rapor_Metni",
+              "displayName": "Rapor_Metni",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Durum",
+              "displayName": "Durum",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Olusturuldu",
+                  "value": "Olusturuldu"
+                },
+                {
+                  "name": "Gonderildi",
+                  "value": "Gonderildi"
+                },
+                {
+                  "name": "Arsivlendi",
+                  "value": "Arsivlendi"
+                },
+                {
+                  "name": "Hazırlandı",
+                  "value": "Hazırlandı"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Olusturma_Tarihi",
+              "displayName": "Olusturma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        3104,
+        0
+      ],
+      "id": "b5a2162e-806f-4211-932b-1e1a6a06d600",
+      "name": "CREATE Haftalik Raporlar",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Okundu_Mu": "={{ $json.notificationFields.Okundu_Mu }}",
+            "Gonderildi_Mi": "={{ $json.notificationFields.Gonderildi_Mi }}",
+            "Bildirim_Basligi": "={{ $json.notificationFields.Bildirim_Basligi }}",
+            "Alici": "={{ $json.notificationFields.Alici }}",
+            "Sinif": "={{ $json.notificationFields.Sinif }}",
+            "Bildirim_Turu": "={{ $json.notificationFields.Bildirim_Turu }}",
+            "Mesaj": "={{ $json.notificationFields.Mesaj }}",
+            "Onem_Derecesi": "={{ $json.notificationFields.Onem_Derecesi }}",
+            "Kanal": "={{ $json.notificationFields.Kanal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Bildirim_Basligi",
+              "displayName": "Bildirim_Basligi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Alici",
+              "displayName": "Alici",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Bildirim_Turu",
+              "displayName": "Bildirim_Turu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Katilim Istegi",
+                  "value": "Katilim Istegi"
+                },
+                {
+                  "name": "Odev Hatirlatma",
+                  "value": "Odev Hatirlatma"
+                },
+                {
+                  "name": "Risk Uyarisi",
+                  "value": "Risk Uyarisi"
+                },
+                {
+                  "name": "Haftalik Rapor",
+                  "value": "Haftalik Rapor"
+                },
+                {
+                  "name": "Mudahale Plani",
+                  "value": "Mudahale Plani"
+                },
+                {
+                  "name": "Sistem",
+                  "value": "Sistem"
+                },
+                {
+                  "name": "Ödev Hatırlatma",
+                  "value": "Ödev Hatırlatma"
+                },
+                {
+                  "name": "Devamsızlık Uyarısı",
+                  "value": "Devamsızlık Uyarısı"
+                },
+                {
+                  "name": "Katılım İsteği",
+                  "value": "Katılım İsteği"
+                },
+                {
+                  "name": "Not Bildirimi",
+                  "value": "Not Bildirimi"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mesaj",
+              "displayName": "Mesaj",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Onem_Derecesi",
+              "displayName": "Onem_Derecesi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Dusuk",
+                  "value": "Dusuk"
+                },
+                {
+                  "name": "Normal",
+                  "value": "Normal"
+                },
+                {
+                  "name": "Yuksek",
+                  "value": "Yuksek"
+                },
+                {
+                  "name": "Acil",
+                  "value": "Acil"
+                },
+                {
+                  "name": "Orta",
+                  "value": "Orta"
+                },
+                {
+                  "name": "Yüksek",
+                  "value": "Yüksek"
+                },
+                {
+                  "name": "Düşük",
+                  "value": "Düşük"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Okundu_Mu",
+              "displayName": "Okundu_Mu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Gonderildi_Mi",
+              "displayName": "Gonderildi_Mi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kanal",
+              "displayName": "Kanal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Panel",
+                  "value": "Panel"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "n8n",
+                  "value": "n8n"
+                },
+                {
+                  "name": "Webhook",
+                  "value": "Webhook"
+                },
+                {
+                  "name": "E-posta + Webhook",
+                  "value": "E-posta + Webhook"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Olusturma_Tarihi",
+              "displayName": "Olusturma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Okunma_Tarihi",
+              "displayName": "Okunma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        3312,
+        0
+      ],
+      "id": "ebf83e25-f212-4219-a986-90b25e1a0d46",
+      "name": "CREATE Bildirimler",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toRecipients": "={{ $('Prepare Report Records').item.json.emailTo }}",
+        "subject": "={{ $('Prepare Report Records').item.json.emailSubject }}",
+        "bodyContent": "={{ $('Prepare Report Records').item.json.emailHtml }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        3520,
+        0
+      ],
+      "id": "00c6ea75-bd2f-4736-a123-d05c75aa8c0b",
+      "name": "Send a message",
+      "webhookId": "1b8edc52-8fb7-4dd9-9a4b-1b0588bfb268",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "rRBPLsQG9BKgLD0f",
+          "name": "Microsoft Outlook OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Classes": {
+      "main": [
+        [
+          {
+            "node": "GET Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Users": {
+      "main": [
+        [
+          {
+            "node": "GET Memberships",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Memberships": {
+      "main": [
+        [
+          {
+            "node": "GET Grades",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Grades": {
+      "main": [
+        [
+          {
+            "node": "GET Assignments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Assignments": {
+      "main": [
+        [
+          {
+            "node": "GET Submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Submissions": {
+      "main": [
+        [
+          {
+            "node": "GET Attendance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Attendance": {
+      "main": [
+        [
+          {
+            "node": "GET Predictions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Predictions": {
+      "main": [
+        [
+          {
+            "node": "GET Student Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Student Summaries": {
+      "main": [
+        [
+          {
+            "node": "GET Risk Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Risk Signals": {
+      "main": [
+        [
+          {
+            "node": "GET Existing Weekly Assistant Reports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Existing Weekly Assistant Reports": {
+      "main": [
+        [
+          {
+            "node": "Prepare Weekly Class Advice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Weekly Class Advice": {
+      "main": [
+        [
+          {
+            "node": "OpenRouter Weekly Class Advice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Weekly Class Advice": {
+      "main": [
+        [
+          {
+            "node": "Prepare Report Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Report Records": {
+      "main": [
+        [
+          {
+            "node": "CREATE Haftalik Raporlar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE Haftalik Raporlar": {
+      "main": [
+        [
+          {
+            "node": "CREATE Bildirimler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE Bildirimler": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "790adc2f-285a-4eea-89dc-ae90c0784598",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e2bde2dbbeefbb35f48db0652f17c950032866c2c8e98282f235b1ad2f98610"
+  },
+  "id": "fZng8Qj0PFspPD1z",
+  "tags": []
+}

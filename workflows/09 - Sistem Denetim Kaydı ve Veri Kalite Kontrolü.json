@@ -1,0 +1,753 @@
+{
+  "name": "09 - Sistem Denetim Kaydı ve Veri Kalite Kontrolü",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "94727df4-d36f-458c-9f41-bb9cd809fa50",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl9ZKwmWAW0cM6Ge",
+          "mode": "list",
+          "cachedResultName": "Kullanicilar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl9ZKwmWAW0cM6Ge"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "088bac31-2f4a-43ea-80b9-a19f77598577",
+      "name": "GET Users",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8cYm3VAc7eegJK",
+          "mode": "list",
+          "cachedResultName": "Siniflar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl8cYm3VAc7eegJK"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f8e99e43-0396-4a25-bc97-c8b4fe06e44e",
+      "name": "GET Classes",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblelK5QB3Fo9lRem",
+          "mode": "list",
+          "cachedResultName": "Sinif_Uyelikleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblelK5QB3Fo9lRem"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "966f8bb3-7153-4fc9-9270-c8ffe238a838",
+      "name": "GET Memberships",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDo2X1HRX1QeNq0",
+          "mode": "list",
+          "cachedResultName": "Odevler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblDo2X1HRX1QeNq0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "dd84c9f3-dbf0-4b4b-80e8-af245179627a",
+      "name": "GET Assignments",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluklP9rV0pZiFn7",
+          "mode": "list",
+          "cachedResultName": "Odev_Teslimleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbluklP9rV0pZiFn7"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "7273d5d8-29ef-470f-9447-de612b3ffed3",
+      "name": "GET Submissions",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblPzFF2DhNkAhVdY",
+          "mode": "list",
+          "cachedResultName": "Notlar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblPzFF2DhNkAhVdY"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1216,
+        0
+      ],
+      "id": "08f34332-bc31-4e3d-a378-e8f3da55ae46",
+      "name": "GET Grades",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblPyYUClplfmSC7f",
+          "mode": "list",
+          "cachedResultName": "Yoklamalar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblPyYUClplfmSC7f"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1424,
+        0
+      ],
+      "id": "9d0f9643-9e4c-40b9-a178-3d9fce67084d",
+      "name": "GET Attendance",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        0
+      ],
+      "id": "e30b7eb6-a2e9-4cdb-9c92-f2b482770c33",
+      "name": "GET Notifications",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblWkpy5SabmxCF5r",
+          "mode": "list",
+          "cachedResultName": "Tahminler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblWkpy5SabmxCF5r"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        0
+      ],
+      "id": "3f24844e-5890-440a-bdce-b88ec80468e9",
+      "name": "GET Predictions",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblceNjQAqkPubypI",
+          "mode": "list",
+          "cachedResultName": "Denetim_Kayitlari",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblceNjQAqkPubypI"
+        },
+        "filterByFormula": "={{ `FIND('DATA_QUALITY:', {Aciklama})` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        0
+      ],
+      "id": "1b304838-1d90-4a67-9982-38347a610917",
+      "name": "GET Existing Audit Logs",
+      "executeOnce": true,
+      "alwaysOutputData": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeRecord(json) {\n  if (!json) return null;\n\n  if (Array.isArray(json.records)) {\n    return json.records.map(normalizeRecord).filter(Boolean);\n  }\n\n  if (json.fields) {\n    return {\n      id: json.id || json.recordId,\n      fields: json.fields,\n    };\n  }\n\n  const { id, recordId, createdTime, ...rest } = json;\n\n  return {\n    id: id || recordId,\n    fields: rest,\n  };\n}\n\nfunction getRecords(nodeName) {\n  const items = $items(nodeName) || [];\n  const records = [];\n\n  for (const item of items) {\n    const normalized = normalizeRecord(item.json);\n\n    if (Array.isArray(normalized)) {\n      records.push(...normalized);\n    } else if (normalized) {\n      records.push(normalized);\n    }\n  }\n\n  return records.filter((record) => record.id);\n}\n\nfunction asLinks(value) {\n  if (!value) return [];\n\n  if (Array.isArray(value)) {\n    return value\n      .map((item) => {\n        if (typeof item === \"string\") return item;\n        if (item?.id) return item.id;\n        if (item?.recordId) return item.recordId;\n        return String(item || \"\");\n      })\n      .map((item) => item.trim())\n      .filter(Boolean);\n  }\n\n  if (typeof value === \"string\") {\n    return [value.trim()].filter(Boolean);\n  }\n\n  return [];\n}\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction hasValue(value) {\n  if (value === null || value === undefined) return false;\n  if (Array.isArray(value)) return value.length > 0;\n  return getString(value) !== \"\";\n}\n\nfunction getNumber(value) {\n  const numberValue = Number(value);\n  return Number.isFinite(numberValue) ? numberValue : null;\n}\n\nfunction todayDate() {\n  return new Date().toISOString().slice(0, 10);\n}\n\nconst users = getRecords(\"GET Users\");\nconst classes = getRecords(\"GET Classes\");\nconst memberships = getRecords(\"GET Memberships\");\nconst assignments = getRecords(\"GET Assignments\");\nconst submissions = getRecords(\"GET Submissions\");\nconst grades = getRecords(\"GET Grades\");\nconst attendance = getRecords(\"GET Attendance\");\nconst notifications = getRecords(\"GET Notifications\");\nconst predictions = getRecords(\"GET Predictions\");\nconst existingAuditLogs = getRecords(\"GET Existing Audit Logs\");\n\nconst today = todayDate();\n\nconst existingAuditText = existingAuditLogs\n  .map((log) => getString(log.fields.Aciklama))\n  .join(\"\\n\");\n\nconst output = [];\n\nfunction addFinding({\n  tableName,\n  recordId,\n  issueCode,\n  title,\n  description,\n  oldValue = \"\",\n  newValue = \"\",\n  severity = \"Uyarı\",\n}) {\n  const trackingCode = `DATA_QUALITY:${today}:${tableName}:${recordId}:${issueCode}`;\n\n  if (existingAuditText.includes(trackingCode)) {\n    return;\n  }\n\n  output.push({\n    json: {\n      trackingCode,\n      severity,\n      fields: {\n        Islem_Adi: title,\n        Islem_Turu: \"Veri Kalite Kontrolü\",\n        Tablo_Adi: tableName,\n        Kayit_ID: recordId,\n        Eski_Deger: oldValue,\n        Yeni_Deger: newValue,\n        IP_Adresi: \"n8n-system\",\n        Aciklama: `${description}\\n\\nSistem takip kodu: ${trackingCode}`,\n        Islem_Tarihi: today,\n      },\n    },\n  });\n}\n\nconst userIds = new Set(users.map((item) => item.id));\nconst classIds = new Set(classes.map((item) => item.id));\nconst assignmentIds = new Set(assignments.map((item) => item.id));\n\n// Kullanicilar checks\nfor (const user of users) {\n  const name = getString(user.fields.Ad_Soyad);\n  const email = getString(user.fields.Eposta);\n  const role = getString(user.fields.Rol);\n\n  if (!name) {\n    addFinding({\n      tableName: \"Kullanicilar\",\n      recordId: user.id,\n      issueCode: \"MISSING_NAME\",\n      title: \"Kullanıcı ad soyad eksik\",\n      description: \"Bir kullanıcı kaydında Ad_Soyad alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (!email) {\n    addFinding({\n      tableName: \"Kullanicilar\",\n      recordId: user.id,\n      issueCode: \"MISSING_EMAIL\",\n      title: \"Kullanıcı e-posta eksik\",\n      description: \"Bir kullanıcı kaydında Eposta alanı boş. E-posta bildirimleri çalışmayabilir.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (!role) {\n    addFinding({\n      tableName: \"Kullanicilar\",\n      recordId: user.id,\n      issueCode: \"MISSING_ROLE\",\n      title: \"Kullanıcı rolü eksik\",\n      description: \"Bir kullanıcı kaydında Rol alanı boş. Yetkilendirme ve yönlendirme sorunları oluşabilir.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// Siniflar checks\nfor (const classRecord of classes) {\n  const className =\n    getString(classRecord.fields.Sinif_Adi) ||\n    getString(classRecord.fields.Ders_Adi);\n\n  const teacherIds = asLinks(classRecord.fields.Ogretmen);\n\n  if (!className) {\n    addFinding({\n      tableName: \"Siniflar\",\n      recordId: classRecord.id,\n      issueCode: \"MISSING_CLASS_NAME\",\n      title: \"Sınıf adı eksik\",\n      description: \"Bir sınıf kaydında Sinif_Adi veya Ders_Adi boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (teacherIds.length === 0) {\n    addFinding({\n      tableName: \"Siniflar\",\n      recordId: classRecord.id,\n      issueCode: \"MISSING_TEACHER\",\n      title: \"Sınıf öğretmeni eksik\",\n      description: \"Bir sınıf kaydında Ogretmen bağlantısı yok. Öğretmen panelleri ve bildirimler etkilenebilir.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  for (const teacherId of teacherIds) {\n    if (!userIds.has(teacherId)) {\n      addFinding({\n        tableName: \"Siniflar\",\n        recordId: classRecord.id,\n        issueCode: \"BROKEN_TEACHER_LINK\",\n        title: \"Sınıf öğretmen bağlantısı bozuk\",\n        description: `Sınıf kaydında bulunamayan bir öğretmen bağlantısı var: ${teacherId}`,\n        oldValue: teacherId,\n        severity: \"Kritik\",\n      });\n    }\n  }\n}\n\n// Sinif_Uyelikleri checks\nfor (const membership of memberships) {\n  const membershipUserIds = asLinks(membership.fields.Kullanici);\n  const membershipClassIds = asLinks(membership.fields.Sinif);\n  const status = getString(membership.fields.Durum);\n  const role = getString(membership.fields.Uyelik_Rolu);\n\n  if (membershipUserIds.length === 0) {\n    addFinding({\n      tableName: \"Sinif_Uyelikleri\",\n      recordId: membership.id,\n      issueCode: \"MISSING_USER_LINK\",\n      title: \"Üyelik kullanıcı bağlantısı eksik\",\n      description: \"Bir sınıf üyeliğinde Kullanici bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (membershipClassIds.length === 0) {\n    addFinding({\n      tableName: \"Sinif_Uyelikleri\",\n      recordId: membership.id,\n      issueCode: \"MISSING_CLASS_LINK\",\n      title: \"Üyelik sınıf bağlantısı eksik\",\n      description: \"Bir sınıf üyeliğinde Sinif bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (!status) {\n    addFinding({\n      tableName: \"Sinif_Uyelikleri\",\n      recordId: membership.id,\n      issueCode: \"MISSING_STATUS\",\n      title: \"Üyelik durumu eksik\",\n      description: \"Bir sınıf üyeliğinde Durum alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (!role) {\n    addFinding({\n      tableName: \"Sinif_Uyelikleri\",\n      recordId: membership.id,\n      issueCode: \"MISSING_ROLE\",\n      title: \"Üyelik rolü eksik\",\n      description: \"Bir sınıf üyeliğinde Uyelik_Rolu alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// Odevler checks\nfor (const assignment of assignments) {\n  const title = getString(assignment.fields.Odev_Basligi);\n  const assignmentClassIds = asLinks(assignment.fields.Sinif);\n\n  if (!title) {\n    addFinding({\n      tableName: \"Odevler\",\n      recordId: assignment.id,\n      issueCode: \"MISSING_TITLE\",\n      title: \"Ödev başlığı eksik\",\n      description: \"Bir ödev kaydında Odev_Basligi alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (assignmentClassIds.length === 0) {\n    addFinding({\n      tableName: \"Odevler\",\n      recordId: assignment.id,\n      issueCode: \"MISSING_CLASS_LINK\",\n      title: \"Ödev sınıf bağlantısı eksik\",\n      description: \"Bir ödev kaydında Sinif bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n}\n\n// Odev_Teslimleri checks\nfor (const submission of submissions) {\n  const submissionAssignmentIds = asLinks(submission.fields.Odev);\n  const submissionStudentIds = asLinks(submission.fields.Ogrenci);\n  const submissionClassIds = asLinks(submission.fields.Sinif);\n\n  if (submissionAssignmentIds.length === 0) {\n    addFinding({\n      tableName: \"Odev_Teslimleri\",\n      recordId: submission.id,\n      issueCode: \"MISSING_ASSIGNMENT_LINK\",\n      title: \"Ödev teslimi ödev bağlantısı eksik\",\n      description: \"Bir ödev teslim kaydında Odev bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  for (const assignmentId of submissionAssignmentIds) {\n    if (!assignmentIds.has(assignmentId)) {\n      addFinding({\n        tableName: \"Odev_Teslimleri\",\n        recordId: submission.id,\n        issueCode: \"BROKEN_ASSIGNMENT_LINK\",\n        title: \"Ödev teslimi bozuk ödev bağlantısı\",\n        description: `Ödev teslim kaydı bulunamayan bir ödeve bağlı: ${assignmentId}`,\n        oldValue: assignmentId,\n        severity: \"Kritik\",\n      });\n    }\n  }\n\n  if (submissionStudentIds.length === 0) {\n    addFinding({\n      tableName: \"Odev_Teslimleri\",\n      recordId: submission.id,\n      issueCode: \"MISSING_STUDENT_LINK\",\n      title: \"Ödev teslimi öğrenci bağlantısı eksik\",\n      description: \"Bir ödev teslim kaydında Ogrenci bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (submissionClassIds.length === 0) {\n    addFinding({\n      tableName: \"Odev_Teslimleri\",\n      recordId: submission.id,\n      issueCode: \"MISSING_CLASS_LINK\",\n      title: \"Ödev teslimi sınıf bağlantısı eksik\",\n      description: \"Bir ödev teslim kaydında Sinif bağlantısı yok.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// Notlar checks\nfor (const grade of grades) {\n  const gradeStudentIds = asLinks(grade.fields.Ogrenci);\n  const gradeClassIds = asLinks(grade.fields.Sinif);\n  const type = getString(grade.fields.Not_Turu);\n  const score = getNumber(grade.fields.Puan);\n  const publishStatus = getString(grade.fields.Yayin_Durumu);\n\n  if (gradeStudentIds.length === 0) {\n    addFinding({\n      tableName: \"Notlar\",\n      recordId: grade.id,\n      issueCode: \"MISSING_STUDENT_LINK\",\n      title: \"Not öğrenci bağlantısı eksik\",\n      description: \"Bir not kaydında Ogrenci bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (gradeClassIds.length === 0) {\n    addFinding({\n      tableName: \"Notlar\",\n      recordId: grade.id,\n      issueCode: \"MISSING_CLASS_LINK\",\n      title: \"Not sınıf bağlantısı eksik\",\n      description: \"Bir not kaydında Sinif bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (!type) {\n    addFinding({\n      tableName: \"Notlar\",\n      recordId: grade.id,\n      issueCode: \"MISSING_GRADE_TYPE\",\n      title: \"Not türü eksik\",\n      description: \"Bir not kaydında Not_Turu alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (score === null) {\n    addFinding({\n      tableName: \"Notlar\",\n      recordId: grade.id,\n      issueCode: \"MISSING_SCORE\",\n      title: \"Not puanı eksik\",\n      description: \"Bir not kaydında Puan alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (!publishStatus) {\n    addFinding({\n      tableName: \"Notlar\",\n      recordId: grade.id,\n      issueCode: \"MISSING_PUBLISH_STATUS\",\n      title: \"Not yayın durumu eksik\",\n      description: \"Bir not kaydında Yayin_Durumu alanı boş. Bildirim ve tahmin otomasyonları etkilenebilir.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// Yoklamalar checks\nfor (const attendanceRecord of attendance) {\n  if (asLinks(attendanceRecord.fields.Ogrenci).length === 0) {\n    addFinding({\n      tableName: \"Yoklamalar\",\n      recordId: attendanceRecord.id,\n      issueCode: \"MISSING_STUDENT_LINK\",\n      title: \"Yoklama öğrenci bağlantısı eksik\",\n      description: \"Bir yoklama kaydında Ogrenci bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (asLinks(attendanceRecord.fields.Sinif).length === 0) {\n    addFinding({\n      tableName: \"Yoklamalar\",\n      recordId: attendanceRecord.id,\n      issueCode: \"MISSING_CLASS_LINK\",\n      title: \"Yoklama sınıf bağlantısı eksik\",\n      description: \"Bir yoklama kaydında Sinif bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (!hasValue(attendanceRecord.fields.Tarih)) {\n    addFinding({\n      tableName: \"Yoklamalar\",\n      recordId: attendanceRecord.id,\n      issueCode: \"MISSING_DATE\",\n      title: \"Yoklama tarihi eksik\",\n      description: \"Bir yoklama kaydında Tarih alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n\n  if (!hasValue(attendanceRecord.fields.Durum)) {\n    addFinding({\n      tableName: \"Yoklamalar\",\n      recordId: attendanceRecord.id,\n      issueCode: \"MISSING_STATUS\",\n      title: \"Yoklama durumu eksik\",\n      description: \"Bir yoklama kaydında Durum alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// Bildirimler checks\nfor (const notification of notifications) {\n  if (asLinks(notification.fields.Alici).length === 0) {\n    addFinding({\n      tableName: \"Bildirimler\",\n      recordId: notification.id,\n      issueCode: \"MISSING_RECIPIENT\",\n      title: \"Bildirim alıcısı eksik\",\n      description: \"Bir bildirim kaydında Alici bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (!hasValue(notification.fields.Mesaj)) {\n    addFinding({\n      tableName: \"Bildirimler\",\n      recordId: notification.id,\n      issueCode: \"MISSING_MESSAGE\",\n      title: \"Bildirim mesajı eksik\",\n      description: \"Bir bildirim kaydında Mesaj alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// Tahminler checks\nfor (const prediction of predictions) {\n  if (asLinks(prediction.fields.Ogrenci).length === 0) {\n    addFinding({\n      tableName: \"Tahminler\",\n      recordId: prediction.id,\n      issueCode: \"MISSING_STUDENT_LINK\",\n      title: \"Tahmin öğrenci bağlantısı eksik\",\n      description: \"Bir tahmin kaydında Ogrenci bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (asLinks(prediction.fields.Sinif).length === 0) {\n    addFinding({\n      tableName: \"Tahminler\",\n      recordId: prediction.id,\n      issueCode: \"MISSING_CLASS_LINK\",\n      title: \"Tahmin sınıf bağlantısı eksik\",\n      description: \"Bir tahmin kaydında Sinif bağlantısı yok.\",\n      severity: \"Kritik\",\n    });\n  }\n\n  if (!hasValue(prediction.fields.Risk_Seviyesi)) {\n    addFinding({\n      tableName: \"Tahminler\",\n      recordId: prediction.id,\n      issueCode: \"MISSING_RISK_LEVEL\",\n      title: \"Tahmin risk seviyesi eksik\",\n      description: \"Bir tahmin kaydında Risk_Seviyesi alanı boş.\",\n      severity: \"Uyarı\",\n    });\n  }\n}\n\n// If everything is clean, write one success audit row per day.\nif (output.length === 0) {\n  addFinding({\n    tableName: \"Sistem\",\n    recordId: `SYSTEM-${today}`,\n    issueCode: \"NO_DATA_QUALITY_ISSUE\",\n    title: \"Veri kalite kontrolü tamamlandı\",\n    description: \"Günlük veri kalite kontrolünde kritik veya uyarı düzeyinde sorun bulunmadı.\",\n    newValue: \"Temiz\",\n    severity: \"Bilgi\",\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2288,
+        0
+      ],
+      "id": "07a367a8-8fc9-4b99-b01d-ffa650396d4a",
+      "name": "Prepare Audit Findings"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblceNjQAqkPubypI",
+          "mode": "list",
+          "cachedResultName": "Denetim_Kayitlari",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblceNjQAqkPubypI"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Islem_Adi": "={{ $json.fields.Islem_Adi }}",
+            "Islem_Turu": "={{ $json.fields.Islem_Turu }}",
+            "Tablo_Adi": "={{ $json.fields.Tablo_Adi }}",
+            "Kayit_ID": "={{ $json.fields.Kayit_ID }}",
+            "Eski_Deger": "={{ $json.fields.Eski_Deger }}",
+            "Yeni_Deger": "={{ $json.fields.Yeni_Deger }}",
+            "IP_Adresi": "={{ $json.fields.IP_Adresi }}",
+            "Aciklama": "={{ $json.fields.Aciklama }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Islem_Adi",
+              "displayName": "Islem_Adi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kullanici",
+              "displayName": "Kullanici",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Islem_Turu",
+              "displayName": "Islem_Turu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Kayit Olusturma",
+                  "value": "Kayit Olusturma"
+                },
+                {
+                  "name": "Kayit Guncelleme",
+                  "value": "Kayit Guncelleme"
+                },
+                {
+                  "name": "Kayit Silme",
+                  "value": "Kayit Silme"
+                },
+                {
+                  "name": "Giris",
+                  "value": "Giris"
+                },
+                {
+                  "name": "Sinif Olusturma",
+                  "value": "Sinif Olusturma"
+                },
+                {
+                  "name": "Sinifa Katilma",
+                  "value": "Sinifa Katilma"
+                },
+                {
+                  "name": "Ogrenci Onaylama",
+                  "value": "Ogrenci Onaylama"
+                },
+                {
+                  "name": "Not Girisi",
+                  "value": "Not Girisi"
+                },
+                {
+                  "name": "Yoklama Girisi",
+                  "value": "Yoklama Girisi"
+                },
+                {
+                  "name": "Risk Hesaplama",
+                  "value": "Risk Hesaplama"
+                },
+                {
+                  "name": "Bildirim Gonderme",
+                  "value": "Bildirim Gonderme"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Tablo_Adi",
+              "displayName": "Tablo_Adi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kayit_ID",
+              "displayName": "Kayit_ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Eski_Deger",
+              "displayName": "Eski_Deger",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Yeni_Deger",
+              "displayName": "Yeni_Deger",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "IP_Adresi",
+              "displayName": "IP_Adresi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Aciklama",
+              "displayName": "Aciklama",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Islem_Tarihi",
+              "displayName": "Islem_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        2496,
+        0
+      ],
+      "id": "f4f94cb1-634d-4125-936b-9dbccdb832b9",
+      "name": "CREATE Denetim Kayitlari",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Users": {
+      "main": [
+        [
+          {
+            "node": "GET Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Classes": {
+      "main": [
+        [
+          {
+            "node": "GET Memberships",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Memberships": {
+      "main": [
+        [
+          {
+            "node": "GET Assignments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Assignments": {
+      "main": [
+        [
+          {
+            "node": "GET Submissions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Submissions": {
+      "main": [
+        [
+          {
+            "node": "GET Grades",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Grades": {
+      "main": [
+        [
+          {
+            "node": "GET Attendance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Attendance": {
+      "main": [
+        [
+          {
+            "node": "GET Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Notifications": {
+      "main": [
+        [
+          {
+            "node": "GET Predictions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Predictions": {
+      "main": [
+        [
+          {
+            "node": "GET Existing Audit Logs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Existing Audit Logs": {
+      "main": [
+        [
+          {
+            "node": "Prepare Audit Findings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Audit Findings": {
+      "main": [
+        [
+          {
+            "node": "CREATE Denetim Kayitlari",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8536da58-9673-4c4e-aaec-41760e7fe3a9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e2bde2dbbeefbb35f48db0652f17c950032866c2c8e98282f235b1ad2f98610"
+  },
+  "id": "eX3cewNHe97SUFGO",
+  "tags": []
+}

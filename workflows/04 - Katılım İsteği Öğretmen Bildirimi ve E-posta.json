@@ -1,0 +1,563 @@
+{
+  "name": "04 - Katılım İsteği Öğretmen Bildirimi ve E-posta",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "af8d9dda-957e-4667-8eb0-7c164b55d27c",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl9ZKwmWAW0cM6Ge",
+          "mode": "list",
+          "cachedResultName": "Kullanicilar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl9ZKwmWAW0cM6Ge"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "9c95f9ac-f0e6-4532-ac64-e9ad99278c73",
+      "name": "GET Users",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8cYm3VAc7eegJK",
+          "mode": "list",
+          "cachedResultName": "Siniflar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl8cYm3VAc7eegJK"
+        },
+        "filterByFormula": "=={{ `NOT(  OR(    {Durum}='Pasif',    {Durum}='Arsivlendi',    {Durum}='Arşivlendi'  ))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "a4b007a9-0703-4510-9e71-eab5710a035d",
+      "name": "GET Classes",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "filterByFormula": "=={{ `OR(  FIND('KATILIM:', {Mesaj}),  FIND('Katılım isteği', {Bildirim_Basligi}),  FIND('Katilim istegi', {Bildirim_Basligi}))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "eb2f7aa7-c016-48ec-b053-c07348fd6e67",
+      "name": "GET Existing Join Notifications",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeRecord(json) {\n  if (!json) return null;\n\n  if (Array.isArray(json.records)) {\n    return json.records.map(normalizeRecord).filter(Boolean);\n  }\n\n  if (json.fields) {\n    return {\n      id: json.id || json.recordId,\n      fields: json.fields,\n    };\n  }\n\n  const { id, recordId, createdTime, ...rest } = json;\n\n  return {\n    id: id || recordId,\n    fields: rest,\n  };\n}\n\nfunction getRecords(nodeName) {\n  const items = $items(nodeName) || [];\n  const records = [];\n\n  for (const item of items) {\n    const normalized = normalizeRecord(item.json);\n\n    if (Array.isArray(normalized)) {\n      records.push(...normalized);\n    } else if (normalized) {\n      records.push(normalized);\n    }\n  }\n\n  return records.filter((record) => record.id);\n}\n\nfunction asLinks(value) {\n  if (!value) return [];\n\n  if (Array.isArray(value)) {\n    return value\n      .map((item) => {\n        if (typeof item === \"string\") return item;\n        if (item?.id) return item.id;\n        if (item?.recordId) return item.recordId;\n        return String(item || \"\");\n      })\n      .map((item) => item.trim())\n      .filter(Boolean);\n  }\n\n  if (typeof value === \"string\") {\n    return [value.trim()].filter(Boolean);\n  }\n\n  return [];\n}\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction buildEmailHtml({\n  teacherName,\n  studentName,\n  className,\n  trackingCode,\n}) {\n  return `\n<div style=\"font-family:Arial,Helvetica,sans-serif;background:#f1f5f9;padding:32px;\">\n  <div style=\"max-width:640px;margin:auto;background:white;border-radius:24px;overflow:hidden;border:1px solid #e2e8f0;\">\n    <div style=\"background:#0f172a;color:white;padding:28px 32px;\">\n      <div style=\"font-size:12px;letter-spacing:4px;text-transform:uppercase;color:#bfdbfe;font-weight:700;\">\n        AkıllıSınıf AI\n      </div>\n      <h1 style=\"margin:12px 0 0;font-size:28px;line-height:1.2;color:#ffffff;\">\n        Yeni Katılım İsteği\n      </h1>\n      <p style=\"margin:12px 0 0;color:#dbeafe;font-size:15px;line-height:1.6;\">\n        Bu bildirim n8n otomasyonu tarafından otomatik oluşturulmuştur.\n      </p>\n    </div>\n\n    <div style=\"padding:32px;color:#0f172a;\">\n      <p style=\"margin:0 0 16px;font-size:16px;line-height:1.7;\">\n        Merhaba <strong>${teacherName}</strong>,\n      </p>\n\n      <p style=\"margin:0 0 20px;font-size:16px;line-height:1.7;\">\n        <strong>${studentName}</strong> adlı öğrenci,\n        <strong>${className}</strong> sınıfına katılmak için onay bekliyor.\n      </p>\n\n      <div style=\"margin:22px 0;padding:18px;border-radius:18px;background:#eff6ff;border:1px solid #bfdbfe;\">\n        <p style=\"margin:0;color:#1d4ed8;font-size:12px;text-transform:uppercase;font-weight:700;letter-spacing:1px;\">\n          Bekleyen İşlem\n        </p>\n        <p style=\"margin:8px 0 0;font-size:20px;font-weight:700;color:#1e3a8a;\">\n          Katılım isteğini öğretmen panelinden onaylayabilir veya reddedebilirsiniz.\n        </p>\n      </div>\n\n      <p style=\"margin:22px 0;font-size:15px;line-height:1.7;color:#475569;\">\n        Lütfen AkıllıSınıf AI öğretmen panelindeki Katılım İstekleri sayfasından bu isteği kontrol edin.\n      </p>\n\n      <div style=\"margin-top:28px;padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.6;\">\n        Sistem takip kodu: ${trackingCode}\n      </div>\n    </div>\n\n    <div style=\"background:#f8fafc;padding:20px 32px;border-top:1px solid #e2e8f0;color:#64748b;font-size:12px;line-height:1.6;\">\n      AkıllıSınıf AI · Yapay Zekâ Destekli Sınıf Performans ve Erken Uyarı Sistemi\n    </div>\n  </div>\n</div>\n`;\n}\n\nconst users = getRecords(\"GET Users\");\nconst classes = getRecords(\"GET Classes\");\nconst pendingMemberships = getRecords(\"GET Pending Memberships\");\nconst existingNotifications = getRecords(\"GET Existing Join Notifications\");\n\nconst output = [];\n\nfor (const membership of pendingMemberships) {\n  const membershipId = membership.id;\n  const studentId = asLinks(membership.fields.Kullanici)[0];\n  const classId = asLinks(membership.fields.Sinif)[0];\n\n  if (!studentId || !classId) continue;\n\n  const student = users.find((user) => user.id === studentId);\n  const classRecord = classes.find((item) => item.id === classId);\n\n  if (!student || !classRecord) continue;\n\n  const teacherId = asLinks(classRecord.fields.Ogretmen)[0];\n\n  if (!teacherId) continue;\n\n  const teacher = users.find((user) => user.id === teacherId);\n\n  if (!teacher) continue;\n\n  const teacherEmail = getString(teacher.fields.Eposta);\n  const teacherName = getString(teacher.fields.Ad_Soyad) || \"Öğretmen\";\n  const studentName = getString(student.fields.Ad_Soyad) || \"Öğrenci\";\n  const className =\n    getString(classRecord.fields.Sinif_Adi) ||\n    getString(classRecord.fields.Ders_Adi) ||\n    \"Sınıf\";\n\n  if (!teacherEmail) continue;\n\n  const trackingCode = `KATILIM:${membershipId}:OGRETMEN:${teacherId}`;\n\n  const duplicateExists = existingNotifications.some((notification) => {\n    const message = getString(notification.fields.Mesaj);\n    return message.includes(trackingCode);\n  });\n\n  if (duplicateExists) continue;\n\n  const message =\n    `Merhaba ${teacherName}, ${studentName} adlı öğrenci \"${className}\" sınıfına katılmak için onay bekliyor. ` +\n    `Lütfen öğretmen panelindeki Katılım İstekleri sayfasından bu isteği kontrol edin.\\n\\n` +\n    `Sistem takip kodu: ${trackingCode}`;\n\n  const emailSubject = `Yeni katılım isteği: ${studentName}`;\n\n  const emailHtml = buildEmailHtml({\n    teacherName,\n    studentName,\n    className,\n    trackingCode,\n  });\n\n  output.push({\n    json: {\n      emailTo: teacherEmail,\n      emailSubject,\n      emailHtml,\n      teacherName,\n      studentName,\n      className,\n      trackingCode,\n      fields: {\n        Bildirim_Basligi: \"Katılım isteği bekliyor\",\n        Alici: [teacherId],\n        Sinif: [classId],\n        Bildirim_Turu: \"Katılım İsteği\",\n        Mesaj: message,\n        Onem_Derecesi: \"Orta\",\n        Okundu_Mu: false,\n        Gonderildi_Mi: true,\n        Kanal: \"E-posta + Webhook\",\n      },\n    },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "1ba4428b-0af8-4a57-9d7e-5ddb931f2fe8",
+      "name": "Prepare Join Request Notifications"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl4BZHSQKhM51Tyf",
+          "mode": "list",
+          "cachedResultName": "Bildirimler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl4BZHSQKhM51Tyf"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Okundu_Mu": "={{ $json.fields.Okundu_Mu }}",
+            "Gonderildi_Mi": "={{ $json.fields.Gonderildi_Mi }}",
+            "Bildirim_Basligi": "={{ $json.fields.Bildirim_Basligi }}",
+            "Alici": "={{ $json.fields.Alici }}",
+            "Sinif": "={{ $json.fields.Sinif }}",
+            "Bildirim_Turu": "={{ $json.fields.Bildirim_Turu }}",
+            "Mesaj": "={{ $json.fields.Mesaj }}",
+            "Onem_Derecesi": "={{ $json.fields.Onem_Derecesi }}",
+            "Kanal": "={{ $json.fields.Kanal }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Bildirim_Basligi",
+              "displayName": "Bildirim_Basligi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Alici",
+              "displayName": "Alici",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Bildirim_Turu",
+              "displayName": "Bildirim_Turu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Katilim Istegi",
+                  "value": "Katilim Istegi"
+                },
+                {
+                  "name": "Odev Hatirlatma",
+                  "value": "Odev Hatirlatma"
+                },
+                {
+                  "name": "Risk Uyarisi",
+                  "value": "Risk Uyarisi"
+                },
+                {
+                  "name": "Haftalik Rapor",
+                  "value": "Haftalik Rapor"
+                },
+                {
+                  "name": "Mudahale Plani",
+                  "value": "Mudahale Plani"
+                },
+                {
+                  "name": "Sistem",
+                  "value": "Sistem"
+                },
+                {
+                  "name": "Ödev Hatırlatma",
+                  "value": "Ödev Hatırlatma"
+                },
+                {
+                  "name": "Devamsızlık Uyarısı",
+                  "value": "Devamsızlık Uyarısı"
+                },
+                {
+                  "name": "Katılım İsteği",
+                  "value": "Katılım İsteği"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mesaj",
+              "displayName": "Mesaj",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Onem_Derecesi",
+              "displayName": "Onem_Derecesi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Dusuk",
+                  "value": "Dusuk"
+                },
+                {
+                  "name": "Normal",
+                  "value": "Normal"
+                },
+                {
+                  "name": "Yuksek",
+                  "value": "Yuksek"
+                },
+                {
+                  "name": "Acil",
+                  "value": "Acil"
+                },
+                {
+                  "name": "Orta",
+                  "value": "Orta"
+                },
+                {
+                  "name": "Yüksek",
+                  "value": "Yüksek"
+                },
+                {
+                  "name": "Düşük",
+                  "value": "Düşük"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Okundu_Mu",
+              "displayName": "Okundu_Mu",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Gonderildi_Mi",
+              "displayName": "Gonderildi_Mi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Kanal",
+              "displayName": "Kanal",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Panel",
+                  "value": "Panel"
+                },
+                {
+                  "name": "Email",
+                  "value": "Email"
+                },
+                {
+                  "name": "n8n",
+                  "value": "n8n"
+                },
+                {
+                  "name": "Webhook",
+                  "value": "Webhook"
+                },
+                {
+                  "name": "E-posta + Webhook",
+                  "value": "E-posta + Webhook"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Olusturma_Tarihi",
+              "displayName": "Olusturma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Okunma_Tarihi",
+              "displayName": "Okunma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "bfbc8047-0281-42c3-b534-2ccaaa146e4c",
+      "name": "CREATE Bildirimler",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toRecipients": "={{ $('Prepare Join Request Notifications').item.json.emailTo }}",
+        "subject": "={{ $('Prepare Join Request Notifications').item.json.emailSubject }}",
+        "bodyContent": "=={{ $('Prepare Join Request Notifications').item.json.emailHtml }}",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "1f22bee9-6d8e-4027-8dd3-6ae8d03a4fd0",
+      "name": "Send a message",
+      "webhookId": "2ee52786-2288-41b0-9bb6-d1167eb3e0ae",
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "id": "rRBPLsQG9BKgLD0f",
+          "name": "Microsoft Outlook OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblelK5QB3Fo9lRem",
+          "mode": "list",
+          "cachedResultName": "Sinif_Uyelikleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblelK5QB3Fo9lRem"
+        },
+        "filterByFormula": "=={{ `AND(  {Durum}='Onay Bekliyor',  OR(    {Uyelik_Rolu}='Ogrenci',    {Uyelik_Rolu}='Öğrenci'  ))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "c3a20057-f8d1-4bd5-a792-50547813b95d",
+      "name": "GET Pending Memberships",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Users": {
+      "main": [
+        [
+          {
+            "node": "GET Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Classes": {
+      "main": [
+        [
+          {
+            "node": "GET Pending Memberships",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Existing Join Notifications": {
+      "main": [
+        [
+          {
+            "node": "Prepare Join Request Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Join Request Notifications": {
+      "main": [
+        [
+          {
+            "node": "CREATE Bildirimler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREATE Bildirimler": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Pending Memberships": {
+      "main": [
+        [
+          {
+            "node": "GET Existing Join Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "deff68bd-9e96-4ef5-ad8a-9f38841c1bc5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e2bde2dbbeefbb35f48db0652f17c950032866c2c8e98282f235b1ad2f98610"
+  },
+  "id": "GOAS4edC97JOphNf",
+  "tags": []
+}

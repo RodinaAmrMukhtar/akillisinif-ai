@@ -1,0 +1,616 @@
+{
+  "name": "13 - Ödev Dosyalarını Google Drive'a Arşivle",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluklP9rV0pZiFn7",
+          "mode": "list",
+          "cachedResultName": "Odev_Teslimleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbluklP9rV0pZiFn7"
+        },
+        "filterByFormula": "={{ `AND(  {Dosya},  NOT({Drive_Arsivlendi_Mi}=1))` }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "e8688bfc-4a9b-4257-a139-ad01890ff262",
+      "name": "GET Submissions To Archive",
+      "alwaysOutputData": true,
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl9ZKwmWAW0cM6Ge",
+          "mode": "list",
+          "cachedResultName": "Kullanicilar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl9ZKwmWAW0cM6Ge"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c495c834-f8a9-4562-9bd9-88477ac8a7d5",
+      "name": "GET Users",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblDo2X1HRX1QeNq0",
+          "mode": "list",
+          "cachedResultName": "Odevler",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tblDo2X1HRX1QeNq0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "4ef9b4ef-a00b-4e1a-9955-77760c77ece4",
+      "name": "GET Assignments",
+      "executeOnce": true,
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl8cYm3VAc7eegJK",
+          "mode": "list",
+          "cachedResultName": "Siniflar",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbl8cYm3VAc7eegJK"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "fd860e97-4ddd-4e33-9951-63918abeeaa7",
+      "name": "GET Classes",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function normalizeRecord(json) {\n  if (!json) return null;\n\n  if (Array.isArray(json.records)) {\n    return json.records.map(normalizeRecord).filter(Boolean);\n  }\n\n  if (json.fields) {\n    return {\n      id: json.id || json.recordId,\n      fields: json.fields,\n    };\n  }\n\n  const { id, recordId, createdTime, ...rest } = json;\n\n  return {\n    id: id || recordId,\n    fields: rest,\n  };\n}\n\nfunction getRecords(nodeName) {\n  const items = $items(nodeName) || [];\n  const records = [];\n\n  for (const item of items) {\n    const normalized = normalizeRecord(item.json);\n\n    if (Array.isArray(normalized)) {\n      records.push(...normalized);\n    } else if (normalized) {\n      records.push(normalized);\n    }\n  }\n\n  return records.filter((record) => record.id);\n}\n\nfunction asLinks(value) {\n  if (!value) return [];\n\n  if (Array.isArray(value)) {\n    return value\n      .map((item) => {\n        if (typeof item === \"string\") return item;\n        if (item?.id) return item.id;\n        if (item?.recordId) return item.recordId;\n        return String(item || \"\");\n      })\n      .map((item) => item.trim())\n      .filter(Boolean);\n  }\n\n  if (typeof value === \"string\") {\n    return [value.trim()].filter(Boolean);\n  }\n\n  return [];\n}\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfunction cleanFileName(value) {\n  return getString(value)\n    .replace(/[\\\\/:*?\"<>|#%{}~&]/g, \"-\")\n    .replace(/\\s+/g, \" \")\n    .trim()\n    .slice(0, 160);\n}\n\nfunction getAttachments(value) {\n  if (!Array.isArray(value)) return [];\n\n  return value\n    .map((file) => ({\n      id: getString(file.id),\n      filename: getString(file.filename) || \"dosya\",\n      url: getString(file.url),\n      type: getString(file.type),\n    }))\n    .filter((file) => file.url);\n}\n\nconst driveFolderId = \"1im1mBumYAiX5lOsQ19u98pm6mxhH6oQt\";\n\nconst submissions = getRecords(\"GET Submissions To Archive\");\nconst users = getRecords(\"GET Users\");\nconst assignments = getRecords(\"GET Assignments\");\nconst classes = getRecords(\"GET Classes\");\n\nconst output = [];\n\nfor (const submission of submissions) {\n  const studentId = asLinks(submission.fields.Ogrenci)[0];\n  const assignmentId = asLinks(submission.fields.Odev)[0];\n  const classId = asLinks(submission.fields.Sinif)[0];\n\n  const student = users.find((user) => user.id === studentId);\n  const assignment = assignments.find((item) => item.id === assignmentId);\n  const classRecord = classes.find((item) => item.id === classId);\n\n  const studentName =\n    getString(student?.fields?.Ad_Soyad) ||\n    getString(student?.fields?.Eposta) ||\n    \"Ogrenci\";\n\n  const assignmentTitle =\n    getString(assignment?.fields?.Odev_Basligi) ||\n    \"Odev\";\n\n  const className =\n    getString(classRecord?.fields?.Sinif_Adi) ||\n    getString(classRecord?.fields?.Ders_Adi) ||\n    \"Sinif\";\n\n  const attachments = getAttachments(submission.fields.Dosya);\n\n  for (let index = 0; index < attachments.length; index += 1) {\n    const attachment = attachments[index];\n    const originalName = cleanFileName(attachment.filename);\n\n    const archiveName = cleanFileName(\n      `${className}__${assignmentTitle}__${studentName}__${submission.id}__${index + 1}__${originalName}`,\n    );\n\n    output.push({\n      json: {\n        submissionId: submission.id,\n        driveFolderId,\n        driveFolderLink: `https://drive.google.com/drive/folders/${driveFolderId}`,\n        downloadUrl: attachment.url,\n        originalFileName: originalName,\n        archiveFileName: archiveName,\n        studentName,\n        assignmentTitle,\n        className,\n      },\n    });\n  }\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "667eabec-93a1-4c9e-8493-c9a8fa4b680d",
+      "name": "Prepare Drive Files"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.downloadUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "474c13d9-73f0-4dd8-9e0b-0598bbab183a",
+      "name": "Download Attachment"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Prepare Drive Files').item.json.archiveFileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Prepare Drive Files').item.json.driveFolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "a0072105-2302-480b-b5e6-a751b23dc078",
+      "name": "Google Drive Upload File",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "No086jOrutjxv8TN",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const preparedItems = $items(\"Prepare Drive Files\");\nconst uploadItems = $items(\"Google Drive Upload File\");\n\nconst grouped = new Map();\n\nfunction getString(value) {\n  return String(value || \"\").trim();\n}\n\nfor (let index = 0; index < uploadItems.length; index += 1) {\n  const source = preparedItems[index]?.json || {};\n  const uploaded = uploadItems[index]?.json || {};\n\n  const fileId =\n    uploaded.id ||\n    uploaded.fileId ||\n    \"\";\n\n  const fileName =\n    uploaded.name ||\n    source.archiveFileName ||\n    \"Google Drive dosyası\";\n\n  const fileLink =\n    uploaded.webViewLink ||\n    uploaded.webContentLink ||\n    (fileId ? `https://drive.google.com/file/d/${fileId}/view` : \"\");\n\n  if (!source.submissionId || !fileLink) continue;\n\n  if (!grouped.has(source.submissionId)) {\n    grouped.set(source.submissionId, {\n      links: [],\n      folderLink: source.driveFolderLink,\n    });\n  }\n\n  grouped.get(source.submissionId).links.push(`${fileName}: ${fileLink}`);\n}\n\nconst today = new Date().toISOString().slice(0, 10);\nconst output = [];\n\nfor (const [submissionId, value] of grouped.entries()) {\n  output.push({\n    json: {\n      submissionId,\n      fields: {\n        Drive_Arsivlendi_Mi: true,\n        Drive_Dosya_Linkleri: value.links.join(\"\\n\"),\n        Drive_Klasor_Linki: value.folderLink,\n        Drive_Arsiv_Tarihi: today,\n      },\n    },\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1664,
+        0
+      ],
+      "id": "223c89a6-66b7-4c1f-86dd-bdc117a947b4",
+      "name": "Prepare Airtable Archive Updates"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appkxJrU7SdIKLhI4",
+          "mode": "list",
+          "cachedResultName": "AkilliSinif_AI_Veritabani",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbluklP9rV0pZiFn7",
+          "mode": "list",
+          "cachedResultName": "Odev_Teslimleri",
+          "cachedResultUrl": "https://airtable.com/appkxJrU7SdIKLhI4/tbluklP9rV0pZiFn7"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Gec_Mi": false,
+            "Drive_Arsivlendi_Mi": "={{ $json.fields.Drive_Arsivlendi_Mi }}",
+            "id": "={{ $json.submissionId }}",
+            "Drive_Dosya_Linkleri": "={{ $json.fields.Drive_Dosya_Linkleri }}",
+            "Drive_Klasor_Linki": "={{ $json.fields.Drive_Klasor_Linki }}",
+            "Drive_Arsiv_Tarihi": "={{ $json.fields.Drive_Arsiv_Tarihi }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Teslim_Adi",
+              "displayName": "Teslim_Adi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Odev",
+              "displayName": "Odev",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ogrenci",
+              "displayName": "Ogrenci",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Sinif",
+              "displayName": "Sinif",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Teslim_Metni",
+              "displayName": "Teslim_Metni",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Dosya",
+              "displayName": "Dosya",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Teslim_Tarihi",
+              "displayName": "Teslim_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Durum",
+              "displayName": "Durum",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Teslim Edildi",
+                  "value": "Teslim Edildi"
+                },
+                {
+                  "name": "Gec Teslim",
+                  "value": "Gec Teslim"
+                },
+                {
+                  "name": "Teslim Edilmedi",
+                  "value": "Teslim Edilmedi"
+                },
+                {
+                  "name": "Degerlendirildi",
+                  "value": "Degerlendirildi"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Puan",
+              "displayName": "Puan",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Ogretmen_Geri_Bildirimi",
+              "displayName": "Ogretmen_Geri_Bildirimi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Gec_Mi",
+              "displayName": "Gec_Mi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Olusturma_Tarihi",
+              "displayName": "Olusturma_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Drive_Arsivlendi_Mi",
+              "displayName": "Drive_Arsivlendi_Mi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Drive_Dosya_Linkleri",
+              "displayName": "Drive_Dosya_Linkleri",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Drive_Klasor_Linki",
+              "displayName": "Drive_Klasor_Linki",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Drive_Arsiv_Tarihi",
+              "displayName": "Drive_Arsiv_Tarihi",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1872,
+        0
+      ],
+      "id": "af0b354b-65ac-4463-a255-b24fd3ce910f",
+      "name": "UPDATE Odev_Teslimleri",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "g1KFkF47vbtHE4dW",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1fd962a6-1918-4ae6-ade8-32796650ffb3",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "GET Submissions To Archive": {
+      "main": [
+        [
+          {
+            "node": "GET Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Users": {
+      "main": [
+        [
+          {
+            "node": "GET Assignments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Assignments": {
+      "main": [
+        [
+          {
+            "node": "GET Classes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Classes": {
+      "main": [
+        [
+          {
+            "node": "Prepare Drive Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Drive Files": {
+      "main": [
+        [
+          {
+            "node": "Download Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Attachment": {
+      "main": [
+        [
+          {
+            "node": "Google Drive Upload File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Upload File": {
+      "main": [
+        [
+          {
+            "node": "Prepare Airtable Archive Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Airtable Archive Updates": {
+      "main": [
+        [
+          {
+            "node": "UPDATE Odev_Teslimleri",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GET Submissions To Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "50456e54-a348-4fa5-9048-29191621e005",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e2bde2dbbeefbb35f48db0652f17c950032866c2c8e98282f235b1ad2f98610"
+  },
+  "id": "J20ERm8S2e3PlMVf",
+  "tags": []
+}
